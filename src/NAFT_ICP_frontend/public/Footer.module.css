@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.footer {
+  background-color: #070708;
+  padding: 70px 0;
+  color: white;
+}
+
+.container {
+  max-width: 1170px;
+  margin: auto;
+  padding-right: 30px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.footerCol {
+  width: 25%;
+  padding: 0px;
+  padding-left: 0px;
+}
+
+.jump {
+  padding-bottom: 17%;
+}
+
+.jump img {
+  width: 110px;
+  height: 40px;
+  padding-top: 30px;
+ 
+}
+
+
+.para{
+  color: #b8b2b2;
+  margin-left:-3px;
+  font-size: 15px;
+  justify-items: auto;
+  text-align:justify;
+
+}
+
+.join {
+  font-size: 15px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+.socialLinks a {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  background-color: rgba(255, 255, 255, 0.091);
+  margin: 0 10px 10px 0;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 60%;
+  color: #ffffff;
+  transition: all 0.5s ease;
+}
+
+.socialLinks a:hover {
+  color: gold;
+  background-color: rgb(54, 50, 50);
+}
+
+.footerCol h4 {
+  font-size: 25px;
+  color: white;
+  text-transform: capitalize;
+  padding-bottom: 20px;
+  margin-bottom: 37px;
+  font-weight: 500;
+  padding-left: 70px;
+  position: relative;
+}
+
+.footerCol h4::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -30px;
+  height: 2px;
+  box-sizing: border-box;
+  width: 50px;
+   
+}
+.footer-col ul li:not(:last-child){
+	margin-bottom: 40px;
+}
+
+.footerCol ul {
+  list-style: none;
+  padding: 10px;
+  padding-left: 70px;
+  display: grid; 
+  gap: 10px; 
+}
+
+.footerCol ul li a {
+  font-size: 16px;
+  text-transform: capitalize;
+  font-style: bold;
+  text-decoration: none;
+  font-weight: 300;
+  color: #b8b2b2;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.footerCol ul li a:hover {
+  color: gold;
+  padding-left: 8px;
+}
+
+
+@media (max-width: 767px) {
+  .footerCol {
+    width: 50%;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 574px) {
+  .footerCol {
+    width: 100%;
+  }
+  .row {
+    flex-direction: column;
+  }
+}
+
+.copyright {
+    width: 100%;
+    color: #b8b2b2;
+    text-align: center;
+    padding: 15px;
+    background: rgb(23, 22, 22);
+    font-weight: 300;
+  }
+  
+
+  .copyrightLink a:hover {
+    color: gold;
+    text-decoration: none;
+  }
+  
+  
+  .copyrightLink a {
+    color: white;
+    text-decoration: none;
+  }
+  

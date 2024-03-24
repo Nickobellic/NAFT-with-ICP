@@ -1,0 +1,94 @@
+.navbar {
+    background-color: black;
+    color: #fff;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    margin-right: 30px;
+    transition: transform 0.3s ease; 
+  }
+  
+  .logo:hover {
+    transform: scale(1.04); 
+  }
+  
+  
+  .menu {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .menu li {
+    margin-right: 20px;
+  }
+  
+  .actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .actions input[type="text"],.actions input[type="number"] {
+    margin-right: 20px;
+    background: hsl(0, 0%, 15%);
+    color: hsl(0, 0%, 48%);
+    height: 50px;
+    width: 200px;
+    padding: 0 12px;
+    border: 1px solid hsl(0, 0%, 24%);
+    border-radius: 4px;
+  }
+  
+  
+  
+  .signupButton {
+    padding: 8px 10px;
+    font-weight: 700;
+    background-color: hsl(47, 100%, 49%);
+    color: #000000;
+    font-size: 16px;
+    border: none;
+    height: 48px;
+    width:170px;
+    border-radius: 4px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: transform 0.3s ease; 
+  }
+  
+  .signupButton:hover {
+    background-color: hsl(47, 100%, 55%);
+    transform: scale(1.03); 
+  
+  }
+  
+  .navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar ul li {
+    display: inline;
+    margin-right: 1rem;
+    transition: transform 0.3s ease; 
+  }
+  .navbar ul li:hover{
+    transform: scale(1.1); 
+  }
+  
+  .navbar ul li a {
+    color: #fff;
+    background: transparent;
+    color: white;
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+  

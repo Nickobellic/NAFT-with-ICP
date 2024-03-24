@@ -11,7 +11,7 @@ const Footer = () => {
           <div className={style.row}>
             <div className={style.footerCol}>
               <div className={style.jump}>
-                <img src="../../assets/public/images/logo.png" alt="Logo" width="110" height="50" />
+                <img src="../../public/images/logo.png" alt="Logo" width="110" height="50" />
               </div>
               <p className={style.para}>NFT trading has revolutionized the digital ownership landscape, enabling creators and collectors to buy, sell, and exchange unique digital assets securely on the blockchain.</p>
               <p className={style.join}><strong>Join the community</strong></p>

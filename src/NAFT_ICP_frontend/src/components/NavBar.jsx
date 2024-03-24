@@ -6,6 +6,7 @@ import "../../public/styles.css";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from "../pages/HomePage";
 import Register from "../pages/Register";
+import UserRegister from "../pages/UserReg";
 import { useContext, useEffect } from 'react';
 import { Actor } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
@@ -88,7 +89,7 @@ const Navbar = () => {
         <li><Link to="/my-nfts">Collections</Link></li>
         <li><Link to="#">About</Link></li>
         <li><Link to="#">Contact</Link></li>
-        <li><Link to="#">Wallet</Link></li>
+        <li><Link to="/new-user">Wallet</Link></li>
       </ul>
       <div className={styles.actions}>
 
@@ -100,6 +101,7 @@ const Navbar = () => {
            <Routes>
            <Route exact path="/" element={<HomePage />} />
            <Route path="/create-nft" element={<Register />} />
+           <Route path="/new-user" element={<UserRegister />} />
          </Routes>
     </BrowserRouter>
   );

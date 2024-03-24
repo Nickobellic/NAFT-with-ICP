@@ -1,0 +1,49 @@
+.authButton {
+    display: flex;
+    justify-content: center;
+    margin: 38px 0;
+}
+
+
+
+.newuser {
+    display: flex;
+    flex-direction: column;
+}
+
+.user_title {
+    font-family: 'Roboto Mono', sans-serif;
+    color: hsl(47, 100%, 49%);
+    text-align: center;
+    font-size: 55px;
+}
+
+.user_input {
+    text-indent: 10px;
+    font-size: 20px;
+    margin-right: 20px;
+    background: hsl(0, 0%, 15%);
+    color: hsl(0, 0%, 70%);
+    height: 50px;
+    width: 320px;
+    padding: 0 12px;
+    border: 1px solid hsl(0, 0%, 24%);
+    border-radius: 4px;
+}
+
+.user_input_explain, .auth_detail_display {
+    color: white;
+    font-size: 45px;
+    text-align: center;
+}
+
+.auth_detail_display {
+    font-size: 27px;
+}
+
+.user_input_div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

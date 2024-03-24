@@ -20,7 +20,6 @@ const UserRegister = () => {
         const principalId = authClient.getIdentity().getPrincipal().toText();
       
         setPrincipalID(principalId);
-        console.log(principalId);
       
         document.getElementById(
           "principalId"
@@ -31,6 +30,10 @@ const UserRegister = () => {
         );
       }
 
+      function handleFailure(err) {
+        console.log(err);
+      }
+
       async function login() {
         const APP_NAME = "NFID example";
         const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
@@ -38,10 +41,12 @@ const UserRegister = () => {
       
         const identityProvider = `https://nfid.one/authenticate${CONFIG_QUERY}`;
       
-      
+        console.log(BigInt(5));
+
         authClient.login({
           identityProvider,
           onSuccess: handleSuccess,
+          onError: (e) => handleFailure(e),
           windowOpenerFeatures: `
             left=${window.screen.width / 2 - 525 / 2},
             top=${window.screen.height / 2 - 705 / 2},

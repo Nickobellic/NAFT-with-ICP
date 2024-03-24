@@ -25,6 +25,7 @@ function handleSuccess() {
   const principalId = authClient.getIdentity().getPrincipal().toText();
 
   console.log(principalId);
+  console.log(authClient.getIdentity());
 
   document.getElementById(
     "principalId"
@@ -34,6 +35,7 @@ function handleSuccess() {
     authClient.getIdentity()
   );
 }
+
 
 init();
 

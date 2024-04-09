@@ -12,6 +12,6 @@ actor class NFT(name: Text) = this {
 
     public func getNFTId() : async Principal {
         return Principal.fromActor(this);
-    }
+    };
 
 }

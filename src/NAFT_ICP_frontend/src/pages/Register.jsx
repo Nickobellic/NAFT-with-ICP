@@ -2,6 +2,7 @@ import {useContext, useCallback, createContext, useState} from "react";
 import React from "react";
 import axios from "axios";
 import styles from "../../public/Navbar.module.css";
+import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 
 const Register = () => {
     const [title, setTitle] = useState();
@@ -9,6 +10,12 @@ const Register = () => {
     const [price, setPrice] = useState(0);
     const [token, setToken] = useState(0);
     const [data, setData] = useState([]);
+
+    const handleMint = async() => {
+        let mintedData = await naft_icp.mintNFT(title, desc, Number(price), Number(token), [5,15,25,30]);
+
+        console.log(mintedData);
+    }
 
 
     const handleFileChange = (event) => {
@@ -110,7 +117,7 @@ const Register = () => {
                 </div>
 
                 <div>
-                    <button className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={() => mintNFT(title, desc, price, token, data)}>Mint</button>
+                    <button className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
                 </div>
             </div>
         </div>

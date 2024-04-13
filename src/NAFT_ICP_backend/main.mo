@@ -12,10 +12,12 @@ actor naft_icp {
     public type NFTData = {
         nftName: Text;
         nftDesc: Text;
-        nftPrice: Int;
-        nftToken: Int;
-        nftImageData: [Nat];
+        nftPrice: Nat;
+        nftToken: Nat;
+        nftImageData: [Int];
     };
+
+    stable var mintedNFTs = List.nil<NFTData>();
 
     public func greet() : async Text {
         
@@ -35,16 +37,24 @@ actor naft_icp {
 
     };
 
-    public func mintNFT(name: Text, desc: Text, price: Int, token: Int): async NFTData {
+    public func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:[Int]): async NFTData {
+    
+
       let obtainedNFT: NFTData = {
         nftName = name;
         nftDesc = desc;
-        nftPrice = price;
-        nftToken = token;
-        nftImageData = [5,15,20,25];
+        nftPrice = Int.abs(price);
+        nftToken = Int.abs(token);
+        nftImageData = imageData;
       };
 
+      mintedNFTs := List.push(obtainedNFT, mintedNFTs);
+
       return obtainedNFT;   
+    };
+
+    public query func getAllNFTs():async [NFTData] {
+        return List.toArray(mintedNFTs);
     };
 
     public shared(msg) func whoIsCalling(): async Text {

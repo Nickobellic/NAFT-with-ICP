@@ -3,6 +3,7 @@ import React from "react";
 import axios from "axios";
 import styles from "../../public/Navbar.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
+import { Nat } from "@dfinity/candid/lib/cjs/idl";
 
 const Register = () => {
     const [title, setTitle] = useState();
@@ -12,9 +13,13 @@ const Register = () => {
     const [data, setData] = useState([]);
 
     const handleMint = async() => {
-        let mintedData = await naft_icp.mintNFT(title, desc, Number(price), Number(token), [5,15,25,30]);
+        console.log(data);
+        let uintImage = new Uint8Array(data);
+        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), Array.from(uintImage));
 
-        console.log(mintedData);
+        let allNFTs = await naft_icp.getAllNFTs();
+        console.log(allNFTs);
+
     }
 
 

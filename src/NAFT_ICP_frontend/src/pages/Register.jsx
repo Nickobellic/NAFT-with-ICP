@@ -1,6 +1,7 @@
-import {useContext, useCallback, createContext, useState} from "react";
+import {useContext, useCallback, createContext, useState, useEffect} from "react";
 import React from "react";
 import axios from "axios";
+import { locStore } from "./UserReg";
 import styles from "../../public/Navbar.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 import { Nat } from "@dfinity/candid/lib/cjs/idl";
@@ -8,37 +9,62 @@ import { Nat } from "@dfinity/candid/lib/cjs/idl";
 const Register = () => {
     const [title, setTitle] = useState();
     const [desc, setDesc] = useState();
+    const [clicked, setClicked] = useState(false);
     const [price, setPrice] = useState(0);
     const [token, setToken] = useState(0);
     const [data, setData] = useState([]);
+    const [fileData,setFileData] = useState('');
+    const [fileName, setFileName] = useState('');
 
+
+    // Get NFT Details
+    useEffect(() => {
+
+        async function nftDetails() {
+            console.log(await locStore.get("authenticated"), await locStore.get("walletID"));
+            let allNFTs = await naft_icp.getAllNFTs();
+            console.log(allNFTs);
+            if(allNFTs.length > 0) {
+            setFileName(allNFTs[0].nftName);
+            setFileData(allNFTs[0].nftImageData);
+            }
+            
+        }
+
+        nftDetails();
+    }, []);
+
+    // ICP Mint NFT Button
     const handleMint = async() => {
-        console.log(data);
-        let uintImage = new Uint8Array(data);
-        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), Array.from(uintImage));
+        /*let uintImage = data.toString('binary');
+        console.log(uintImage);*/
+        setClicked(true);
+        console.log("Started");
+        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data );
+        console.log("Ended");
 
-        let allNFTs = await naft_icp.getAllNFTs();
-        console.log(allNFTs);
+        setClicked(false);
 
     }
 
+    // Function to convert file into Data URL
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
+        // Encode the file using the FileReader API
         const reader = new FileReader();
-        reader.onload = (e) => {
-          const arrayBuffer = e.target.result;
-          console.log(arrayBuffer);
-          setData(arrayBuffer);
+        reader.onloadend = () => {
+            setData(reader.result);
+            // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
         };
-        reader.readAsArrayBuffer(file);
+        reader.readAsDataURL(file);
       };
-
-    console.log(data);
-
+      
+    
+      
+      // MongoDB NFT mint
     async function mintNFT(tit, des, pri, tok, data) {
         console.log("Clicked");
-        console.log(data);
         try {
 
 
@@ -57,6 +83,15 @@ const Register = () => {
         }
     }
 
+    // Function for downloading the File
+    function downloadImage(data, fileName) {
+        window.open(data);
+        const link = document.createElement("a");
+        link.href = data;
+        link.download = fileName;
+        link.click();
+    }
+    
     /*function ellipseAddress(
         address,
         width) {
@@ -122,7 +157,7 @@ const Register = () => {
                 </div>
 
                 <div>
-                    <button className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
+                    <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={() => downloadImage(fileData, fileName)}>Mint</button>
                 </div>
             </div>
         </div>

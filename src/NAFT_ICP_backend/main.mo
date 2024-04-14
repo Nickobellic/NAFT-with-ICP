@@ -6,6 +6,7 @@ import List "mo:base/List";
 import Nat "mo:base/Nat";
 import Array "mo:base/Array";
 import Int "mo:base/Int";
+import Text "mo:base/Text";
 
 actor naft_icp {
 
@@ -14,7 +15,7 @@ actor naft_icp {
         nftDesc: Text;
         nftPrice: Nat;
         nftToken: Nat;
-        nftImageData: [Int];
+        nftImageData: Text;
     };
 
     stable var mintedNFTs = List.nil<NFTData>();
@@ -26,7 +27,7 @@ actor naft_icp {
     };
 
     public func greetNFT(name : Text) : async Text {
-        Cycles.add(15_000_000_000);
+        Cycles.add(18_000_000_000);
         let nftMint = await NFTClass.NFT(name);
 
         let nftName = await nftMint.getNFTParams();
@@ -37,7 +38,7 @@ actor naft_icp {
 
     };
 
-    public func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:[Int]): async NFTData {
+    public func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text): async NFTData {
     
 
       let obtainedNFT: NFTData = {

@@ -16,22 +16,28 @@ async function init() {
       keyType: 'Ed25519',
  }
   );
+
 }
 
 init();
-console.log(locStore);
+
 const UserRegister = () => {
 
     useEffect(() => {
       async function getLS() {
+        await locStore.set("walletID", authClient.getIdentity().getPrincipal().toText() );
+        await locStore.set("authenticated", await authClient.isAuthenticated() );
         let authSuccess = await authClient.isAuthenticated();
         if(authSuccess) {
           setPrincipalID(authClient.getIdentity().getPrincipal().toText());
         }
+        // console.log(await locStore.get("auth")); // Principal ID from localStorage
       }
 
       getLS();
     }, [])
+
+
     const [nickName, setNickName] = useState(0); 
     const [principalID, setPrincipalID] = useState("");
 
@@ -78,7 +84,7 @@ const UserRegister = () => {
 
       async function logout() {
         await authClient.logout();
-        window.location.href = "/";
+        window.location.reload();
       }
     
     return (
@@ -106,3 +112,4 @@ const UserRegister = () => {
 
 
 export default UserRegister;
+export { locStore};

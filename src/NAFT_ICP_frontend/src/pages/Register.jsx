@@ -3,12 +3,16 @@ import React from "react";
 import axios from "axios";
 import { locStore } from "./UserReg";
 import styles from "../../public/Navbar.module.css";
+import authStyles from "../../public/UserReg.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 import { Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 
 const Register = () => {
+    const [walletID, setWalletID] = useState('');
     const [title, setTitle] = useState();
+    const [color, setColor] = useState('gold');
+    const [auth, setAuth] = useState(false);
     const [desc, setDesc] = useState();
     const [clicked, setClicked] = useState(false);
     const [price, setPrice] = useState(0);
@@ -21,17 +25,30 @@ const Register = () => {
     // Get NFT Details
     useEffect(() => {
 
+        async function authStatus() {
+            let authenticated = await locStore.get("authenticated");
+            setAuth(authenticated);
+
+            let walletID = await locStore.get("walletID");
+            let displayID = auth == false ? walletID : "Unauthenticated";
+            //let color = auth==false ? "red" : "gold"; 
+            setWalletID(displayID);
+            setColor("gold");
+
+        }
+
         async function nftDetails() {
             console.log(await locStore.get("authenticated"), await locStore.get("walletID"));
             let allNFTs = await naft_icp.getAllNFTs();
-            console.log(allNFTs[0][1], allNFTs[1][1]);
+            let nftData = allNFTs.map((nft) => nft[1]);
+            console.log(nftData);
             if(allNFTs.length > 0) {
             setFileName(allNFTs[0].nftName);
             setFileData(allNFTs[0].nftImageData);
             }
             
         }
-
+        authStatus();
         nftDetails();
     }, []);
 
@@ -114,13 +131,13 @@ const Register = () => {
       }, [disconnect]);*/
 
     return (
-
         <div>
             <h1 style={{ color: 'white', display: "flex", justifyContent: "center", marginTop: "30px" }}>Create NFTs</h1>
             <div style={{marginTop: "30px"}}>
                 <div>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "center"}}>Your Wallet Address : <span style={{color:"hsl(47, 100%, 49%)", marginLeft: "20px", marginBottom: "20px"}}>                    
-</span>   </h2>
+                    <h3 className={authStyles.auth_detail_display}>
+                        Your Wallet ID :  <span style={{color: color}}> {walletID} </span> 
+                    </h3>
                 </div>
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Title</h2>

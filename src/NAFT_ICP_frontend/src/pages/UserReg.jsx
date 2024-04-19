@@ -42,6 +42,7 @@ const UserRegister = () => {
     const [principalID, setPrincipalID] = useState("");
 
     function handleSuccess() {
+        window.location.reload();
         const principalId = authClient.getIdentity().getPrincipal().toText();
       
         setPrincipalID(principalId);
@@ -53,6 +54,8 @@ const UserRegister = () => {
         Actor.agentOf(naft_icp).replaceIdentity(
           authClient.getIdentity()
         );
+
+
 
       }
 
@@ -80,6 +83,7 @@ const UserRegister = () => {
             toolbar=0,location=0,menubar=0,width=525,height=705
           `,
         });
+
       }
 
       async function logout() {

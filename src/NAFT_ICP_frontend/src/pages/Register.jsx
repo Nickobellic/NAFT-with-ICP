@@ -1,6 +1,7 @@
 import {useContext, useCallback, createContext, useState, useEffect} from "react";
 import React from "react";
 import axios from "axios";
+import {Link} from "react-router-dom";
 import { locStore } from "./UserReg";
 import styles from "../../public/Navbar.module.css";
 import authStyles from "../../public/UserReg.module.css";
@@ -48,9 +49,21 @@ const Register = () => {
             }
             
         }
+
+
         authStatus();
         nftDetails();
     }, []);
+
+    // Function to get ID of NFTs owned by you
+    async function getYourNFTs() {
+        console.log(walletID);
+        if(walletID.length != 0 ) {
+        let nftsByYou = await naft_icp.getYourNFTs(Principal.fromText(walletID));
+        let nftIDs = nftsByYou.forEach((nft) => Principal.toString(nft));
+        console.log("Minted By You: ", nftIDs);
+        }
+    }
 
     // ICP Mint NFT Button
     const handleMint = async() => {
@@ -58,10 +71,10 @@ const Register = () => {
         console.log(uintImage);*/
         setClicked(true);
         console.log("Started");
-        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data );
-        console.log(Principal.toString(mintedData));
+        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID) );
+        //console.log(Principal.toString(mintedData));
         console.log("Ended");
-
+        await naft_icp.getYourNFTs(Principal.fromText(walletID));
         setClicked(false);
 
     }
@@ -131,7 +144,8 @@ const Register = () => {
       }, [disconnect]);*/
 
     return (
-        <div>
+        walletID != "2vxsx-fae"  ?
+        (<div>
             <h1 style={{ color: 'white', display: "flex", justifyContent: "center", marginTop: "30px" }}>Create NFTs</h1>
             <div style={{marginTop: "30px"}}>
                 <div>
@@ -179,7 +193,9 @@ const Register = () => {
                     <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
                 </div>
             </div>
-        </div>
+        </div>): (
+            <h1 className={authStyles.user_title}><Link to="/new-user">Authenticate</Link> to access Minting</h1>
+        )
     )
 }
 

@@ -4,11 +4,11 @@ import Principal "mo:base/Principal";
 import Debug "mo:base/Debug";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
-import Array "mo:base/Array";
 import Int "mo:base/Int";
 import Text "mo:base/Text";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import Buffer "mo:base/Buffer";
 
 actor naft_icp {
 
@@ -24,16 +24,20 @@ actor naft_icp {
 
 
     stable var mintedNFTs = List.nil<Principal>();
-    private stable var _nftAndID : [(Principal, NFTData)] = [];
+    private stable var _nftAndIDList : [(Principal, NFTData)] = [];
+    private stable var _ownersAndNFTList: [(Principal, [Principal])] = [];
 
-    var nftWithID : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndID.vals(), 0, Principal.equal, Principal.hash);
+    var nftWithIDHashMap : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndIDList.vals(), 0, Principal.equal, Principal.hash);
+    var ownersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_ownersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
 
     system func preupgrade() {
-        _nftAndID := Iter.toArray(nftWithID.entries());
+        _nftAndIDList := Iter.toArray(nftWithIDHashMap.entries());
+        _ownersAndNFTList := Iter.toArray(ownersAndNFTHashMap.entries());
     };
 
     system func postupgrade() {
-        _nftAndID := [];
+        _nftAndIDList := [];
+        _ownersAndNFTList := [];
     };
 
     public func greet() : async Text {
@@ -55,7 +59,7 @@ actor naft_icp {
 
     };
 
-    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text): async Principal {
+    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal): async Principal {
     
       let obtainedNFT: NFTData = {
         nftName = name;
@@ -75,16 +79,43 @@ actor naft_icp {
       
       let nftID = await newNFT.getNFTId();
 
-      nftWithID.put(nftID, obtainedNFT);
+      nftWithIDHashMap.put(nftID, obtainedNFT);
+      var prevBoughtNFTList = ownersAndNFTHashMap.get(minter);
+      switch(prevBoughtNFTList) {
+        case null {
+            ownersAndNFTHashMap.put(minter, [nftID]);
+        };
+
+        case(?prevBoughtNFTList) {
+            let availableNFTs = Buffer.fromArray<Principal>(prevBoughtNFTList);
+            availableNFTs.add(nftID);
+            ownersAndNFTHashMap.put(minter, Buffer.toArray<Principal>(availableNFTs));
+        }
+
+      };
 
       return nftID;   
     };
 
     public query func getAllNFTs():async [(Principal, NFTData)] {
-        return Iter.toArray(nftWithID.entries());
+        return Iter.toArray(nftWithIDHashMap.entries());
     };
 
     public shared(msg) func whoIsCalling(): async Text {
         return Principal.toText(msg.caller);
+    };
+
+    public query func getYourNFTs(princID: Principal): async [Principal] {
+        let allNFTs = ownersAndNFTHashMap.get(princID);
+
+        switch(allNFTs) {
+            case(?allNFTs) {
+                return allNFTs;
+            };
+
+            case(null) {
+                return [];
+            }
+        };
     }
 };

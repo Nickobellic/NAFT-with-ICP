@@ -1,4 +1,4 @@
-import NFTClass "./NFT/NFT";
+import NFTActor "./NFT/NFT";
 import Cycles "mo:base/ExperimentalCycles";
 import Principal "mo:base/Principal";
 import Debug "mo:base/Debug";
@@ -7,6 +7,8 @@ import Nat "mo:base/Nat";
 import Array "mo:base/Array";
 import Int "mo:base/Int";
 import Text "mo:base/Text";
+import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
 
 actor naft_icp {
 
@@ -18,7 +20,21 @@ actor naft_icp {
         nftImageData: Text;
     };
 
-    stable var mintedNFTs = List.nil<NFTData>();
+
+
+
+    stable var mintedNFTs = List.nil<Principal>();
+    private stable var _nftAndID : [(Principal, NFTData)] = [];
+
+    var nftWithID : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndID.vals(), 0, Principal.equal, Principal.hash);
+
+    system func preupgrade() {
+        _nftAndID := Iter.toArray(nftWithID.entries());
+    };
+
+    system func postupgrade() {
+        _nftAndID := [];
+    };
 
     public func greet() : async Text {
         
@@ -27,20 +43,20 @@ actor naft_icp {
     };
 
     public func greetNFT(name : Text) : async Text {
-        Cycles.add(18_000_000_000);
-        let nftMint = await NFTClass.NFT(name);
+        //let nftMint = await NFTClass.NFT(name);
 
-        let nftName = await nftMint.getNFTParams();
-        let nftID = Principal.toText(await nftMint.getNFTId());
+        //let nftName = await nftMint.getNFTParams();
+        //let nftID = Principal.toText(await nftMint.getNFTId());
+
+        let nftName:Text = "Hey";
         
         Debug.print(Nat.toText(Cycles.balance()));
-        return "NFT Name: " # nftName # "\nNFT Principal ID: " # nftID # "";
+        return "NFT Name: " # nftName # "\nNFT Principal ID: ";
 
     };
 
-    public func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text): async NFTData {
+    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text): async Principal {
     
-
       let obtainedNFT: NFTData = {
         nftName = name;
         nftDesc = desc;
@@ -49,13 +65,23 @@ actor naft_icp {
         nftImageData = imageData;
       };
 
-      mintedNFTs := List.push(obtainedNFT, mintedNFTs);
+        Cycles.add(300_000_000_000);
 
-      return obtainedNFT;   
+    Debug.print("Cycles updated "# Nat.toText(Cycles.balance()));
+
+      let newNFT = await NFTActor.NFT(name, desc, Int.abs(price), Int.abs(token), imageData);
+
+    Debug.print("New Cycles "# Nat.toText(Cycles.balance()));
+      
+      let nftID = await newNFT.getNFTId();
+
+      nftWithID.put(nftID, obtainedNFT);
+
+      return nftID;   
     };
 
-    public query func getAllNFTs():async [NFTData] {
-        return List.toArray(mintedNFTs);
+    public query func getAllNFTs():async [(Principal, NFTData)] {
+        return Iter.toArray(nftWithID.entries());
     };
 
     public shared(msg) func whoIsCalling(): async Text {

@@ -5,6 +5,7 @@ import { locStore } from "./UserReg";
 import styles from "../../public/Navbar.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 import { Nat } from "@dfinity/candid/lib/cjs/idl";
+import { Principal } from "@dfinity/principal";
 
 const Register = () => {
     const [title, setTitle] = useState();
@@ -23,7 +24,7 @@ const Register = () => {
         async function nftDetails() {
             console.log(await locStore.get("authenticated"), await locStore.get("walletID"));
             let allNFTs = await naft_icp.getAllNFTs();
-            console.log(allNFTs);
+            console.log(allNFTs[0][1], allNFTs[1][1]);
             if(allNFTs.length > 0) {
             setFileName(allNFTs[0].nftName);
             setFileData(allNFTs[0].nftImageData);
@@ -41,6 +42,7 @@ const Register = () => {
         setClicked(true);
         console.log("Started");
         let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data );
+        console.log(Principal.toString(mintedData));
         console.log("Ended");
 
         setClicked(false);
@@ -157,7 +159,7 @@ const Register = () => {
                 </div>
 
                 <div>
-                    <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={() => downloadImage(fileData, fileName)}>Mint</button>
+                    <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
                 </div>
             </div>
         </div>

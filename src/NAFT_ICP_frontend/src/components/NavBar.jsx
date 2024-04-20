@@ -14,6 +14,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import {NAFT_ICP_backend as naft_icp} from "../../../declarations/NAFT_ICP_backend";
 import React from "react";
 import {Link} from "react-router-dom";
+import Collections from "../pages/Collections";
 
 let authClient = null;
 
@@ -102,6 +103,7 @@ const Navbar = () => {
     </div>
            <Routes>
            <Route exact path="/" element={<HomePage />} />
+           <Route path="/my-nfts" element={<Collections />} />
            <Route path="/create-nft" element={<Register />} />
            <Route path="/new-user" element={<UserRegister />} />
          </Routes>

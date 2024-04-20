@@ -11,7 +11,8 @@ import { Principal } from "@dfinity/principal";
 const Collections = () => {
 
     const [nftData, setNFTData] = useState([]);
-    const [nftOwners, setNFTOwners] = useState([]);
+    const [nftIDs, setNFTIDs] = useState([]);
+    const [owners, setOwners] = useState([]);
     const [imageList, setImageData] = useState([]);
     const [walletID, setWalletID] = useState('');
 
@@ -25,21 +26,30 @@ const Collections = () => {
     }
 
     async function getAllMintedNFTs() {
+        let ownerList = [];
         let nfts = await naft_icp.getAllNFTs();
         let nftData = nfts.map((nft) => nft[1]);
-        let nftOwners = nfts.map((nft) => nft[0].toText());
+        let nftIDs = nfts.map((nft) => nft[0].toText());
         setNFTData(nftData);
-        setNFTOwners(nftOwners);
+        setNFTIDs(nftIDs);
 
-        console.log(nftOwners);
+        for(const nft of nftIDs) {
+          let owner = await naft_icp.getOwner(Principal.fromText(nftIDs[0]));
+          ownerList.push(owner);
+        }
+
+        setOwners(ownerList);
+        console.log(owners);
+        //console.log(nftIDs);
     }
+
 
     useEffect(() => {
         getWalletID();
         getAllMintedNFTs();
     }, []);
 
-
+console.log(owners);
     // ----------- MONGO DB -----------
     async function execApi() {
         try {
@@ -78,7 +88,6 @@ const Collections = () => {
         setImageData(imageData);
       }, []);*/
     
-      console.log(imageList);
       // ------------------------------------
 
 
@@ -96,7 +105,8 @@ const Collections = () => {
         <Grid key={index} item xs={12} sm={6} md={4} lg={3} >
           <ColleCard
             imgSrc={nft.nftImageData}
-            nftID = {nftOwners[index]}
+            nftID = {nftIDs[index]}
+            ownerID = {owners[index]}
             title={nft.nftName}
             description={nft.nftDesc}
             price={parseInt(nft.nftPrice)}

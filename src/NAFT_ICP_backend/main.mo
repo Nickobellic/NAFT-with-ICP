@@ -9,6 +9,8 @@ import Text "mo:base/Text";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
+import Array "mo:base/Array";
+import Bool "mo:base/Bool";
 
 actor naft_icp {
 
@@ -117,5 +119,26 @@ actor naft_icp {
                 return [];
             }
         };
+    };
+
+    public query func getOwner(nftID: Principal): async Text {
+        for (key in ownersAndNFTHashMap.keys()) {
+            let ownerNFTs = ownersAndNFTHashMap.get(key);
+            switch(ownerNFTs) {
+                case(?ownerNFTs) {
+                    let isFound = Array.find<Principal>(ownerNFTs, func(x:Principal) {x == nftID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
     }
 };

@@ -1,8 +1,28 @@
 // components/Card.js
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import styles from '../../public/newProduct.module.css'; // Import CSS module for styling
+import { locStore } from '../pages/UserReg';
 
-const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID }) => {
+
+const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
+  const [full, setFull] = useState(false);
+  const [ownersID, setOwnerID] = useState(ownerID);
+  const [seller,setSeller] = useState(false);
+
+  async function checkOwnership() {
+    let authUser = await locStore.get("walletID");
+    console.log(authUser);
+    if(authUser === ownersID) {
+      setSeller(true);
+    }
+  }
+
+  useEffect(() => {
+    checkOwnership();
+  }, [])
+
+  console.log(seller);
+
   return (
     <div className={styles.card}>
       <div className={styles.cardBanner}>
@@ -25,6 +45,10 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID }) => 
         </div>
         <div className={`${styles.buttonRow}`}>
           <button className={`${styles.buttonSize} ${styles.buyButton}`} onClick={onBuy}>Sell</button>
+        </div>
+        <div className={styles.nftIDBody}>
+          <p className={styles.cardNFTLabel}>Owned By</p>
+          <h6 style={{color: "red"}} className={`${styles.cardTitle} ${styles.nftID}`}>{ownerID}<a hidden={!full} onClick={() => setFull(true)}>...</a></h6>
         </div>
         </div>
     </div>

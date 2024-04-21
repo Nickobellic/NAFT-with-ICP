@@ -28,6 +28,7 @@ const UserRegister = () => {
         await locStore.set("walletID", authClient.getIdentity().getPrincipal().toText() );
         await locStore.set("authenticated", await authClient.isAuthenticated() );
         let authSuccess = await authClient.isAuthenticated();
+        console.log(authSuccess);
         if(authSuccess) {
           setPrincipalID(authClient.getIdentity().getPrincipal().toText());
         }
@@ -76,7 +77,7 @@ const UserRegister = () => {
           identityProvider,
           onSuccess: handleSuccess,
           onError: (e) => handleFailure(e),
-          maxTimeToLive: BigInt(5 * 60 * 1000 * 1000 * 1000), // 5 minutes
+          maxTimeToLive: BigInt(30 * 60 * 1000 * 1000 * 1000), // 5 minutes
           windowOpenerFeatures: `
             left=${window.screen.width / 2 - 525 / 2},
             top=${window.screen.height / 2 - 705 / 2},

@@ -4,12 +4,15 @@ import React, {useState, useEffect} from "react";
 import { Actor } from "@dfinity/agent";
 import { AuthClient, LocalStorage } from "@dfinity/auth-client";
 import { redirect } from "react-router-dom";
+import { AccountIdentifier, LedgerCanister } from "@dfinity/ledger-icp";
 
 let authClient = null;
 let locStore;
+let newdata;
 
 async function init() {
   locStore = new LocalStorage();
+  newdata = LedgerCanister.create({authClient, canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai" });
 
   authClient = await AuthClient.create(
     {storage: locStore,
@@ -31,6 +34,9 @@ const UserRegister = () => {
         console.log(authSuccess);
         if(authSuccess) {
           setPrincipalID(authClient.getIdentity().getPrincipal().toText());
+          const account = AccountIdentifier.fromPrincipal({principal: authClient.getIdentity().getPrincipal()});
+          const balance = await newdata.accountBalance({accountIdentifier: account}); // To check the balance
+          console.log(balance);
         }
         // console.log(await locStore.get("auth")); // Principal ID from localStorage
       }

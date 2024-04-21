@@ -20,12 +20,14 @@ let authClient = null;
 
 async function init() {
   authClient = await AuthClient.create();
+
 }
 
 function handleSuccess() {
   const principalId = authClient.getIdentity().getPrincipal().toText();
 
   console.log(principalId);
+
   console.log(authClient.getIdentity());
 
   document.getElementById(
@@ -35,10 +37,14 @@ function handleSuccess() {
   Actor.agentOf(naft_icp).replaceIdentity(
     authClient.getIdentity()
   );
+
+
 }
 
 
 init();
+
+
 
 async function login() {
   const APP_NAME = "NFID example";
@@ -64,6 +70,7 @@ const Navbar = () => {
 
   useEffect(() => {
     async function getName() {
+  
       const maniacNFT = await naft_icp.greetNFT("Cryptodunks");
       const anotherManiacNFT = await naft_icp.greetNFT("Cryptodunks");
 

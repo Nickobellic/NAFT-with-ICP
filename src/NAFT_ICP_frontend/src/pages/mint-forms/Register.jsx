@@ -1,17 +1,18 @@
 import {useContext, useCallback, createContext, useState, useEffect} from "react";
 import React from "react";
 import axios from "axios";
-import {Link} from "react-router-dom";
-import { locStore } from "./UserReg";
+import {Link, useParams} from "react-router-dom";
+import { locStore } from "../UserReg";
 import { Switch } from "@mui/material";
 import {FormGroup, FormControlLabel} from "@mui/material";
-import styles from "../../public/Navbar.module.css";
-import authStyles from "../../public/UserReg.module.css";
-import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
+import styles from "../../../public/Navbar.module.css";
+import authStyles from "../../../public/UserReg.module.css";
+import { NAFT_ICP_backend as naft_icp } from "../../../../declarations/NAFT_ICP_backend";
 import { Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 
-const Register = () => {
+const MintAssets = () => {
+    const {mint_type} = useParams();
     const [walletID, setWalletID] = useState("");
     const [title, setTitle] = useState();
     const [color, setColor] = useState('gold');
@@ -154,43 +155,57 @@ const Register = () => {
     return (
         auth === "true"?
         (<div>
-            <h1 style={{ color: 'white', display: "flex", justifyContent: "center", marginTop: "30px" }}>Create NFTs</h1>
+            <h1 style={{ color: 'white', display: "flex", justifyContent: "center", marginTop: "30px" }}>Create Digitized {mint_type} Documents</h1>
             <div style={{marginTop: "30px"}}>
                 <div>
                     <h3 className={authStyles.auth_detail_display}>
                         Your Wallet ID :  <span style={{color: color}}> {walletID} </span> 
                     </h3>
                 </div>
-                <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Title</h2>
+                <div style={{marginTop: "40px"}}>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Title</h2>
                     <div className={styles.actions}>
                     <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Title" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Description</h2>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Owner</h2>
+                    <div className={styles.actions}>
+                    <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Name of the Owner" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    </div>
+                </div>
+
+                <div style={{marginTop: "30px"}}>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Description</h2>
                     <div className={styles.actions}>
                     <input name="nftDesc" onChange={(e) => setDesc(e.target.value)} type="text" placeholder="Description" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Token Price</h2>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Token Price</h2>
                     <div className={styles.actions}>
                     <input min="1" name="nftPrice" onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total Tokens</h2>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total {mint_type} Tokens</h2>
                     <div className={styles.actions}>
-                    <input min="1" name="nftTokens" onChange={(e) => setToken(e.target.value)} type="number" placeholder="Total Tokens" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftTokens" onChange={(e) => setToken(e.target.value)} type="number" placeholder={`Total ${mint_type} Tokens`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Upload NFT data</h2>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Tags</h2>
+                    <div className={styles.actions}>
+                    <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder={`Tags related to ${mint_type}`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    </div>
+                </div>
+
+                <div style={{marginTop: "30px"}}>
+                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Upload {mint_type} Document</h2>
                     <div className={styles.actions}>
                     <input onChange={handleFileChange} accept="image/x-png,image/jpeg,image/gif,image/svg+xml,image/webp"
  name="nftData"  type="file" placeholder="Search" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
@@ -229,4 +244,4 @@ const Register = () => {
 }
 
 
-export default Register;
+export default MintAssets;

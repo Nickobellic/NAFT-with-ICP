@@ -3,11 +3,12 @@
 import styles from "../../public/Navbar.module.css";
 import logo from "../../public/images/logo.png";
 import "../../public/styles.css";
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import HomePage from "../pages/HomePage";
-import Register from "../pages/Register";
+import Register from "../pages/mint-forms/Register";
 import UserRegister from "../pages/UserReg";
 import { useContext, useEffect } from 'react';
+import Minter from "../pages/Minter";
 import { Actor } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 //import { naft_icp } from "../../../declarations/naft_icp";
@@ -16,6 +17,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import AuctionPage from "../pages/AuctionPage";
 import Collections from "../pages/Collections";
+import MintAssets from "../pages/mint-forms/Register";
 
 let authClient = null;
 
@@ -96,7 +98,7 @@ const Navbar = () => {
       </div>
       <ul className={styles.menu}>
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/create-nft">Create</Link></li>
+        <li><Link to="/digitize-assets">Create</Link></li>
         <li><Link to="/my-nfts">Collections</Link></li>
         <li><Link to="#">About</Link></li>
         <li><Link to="/auctions">Auctions</Link></li>
@@ -112,8 +114,8 @@ const Navbar = () => {
            <Routes>
            <Route exact path="/" element={<HomePage />} />
            <Route path="/my-nfts" element={<Collections />} />
-           <Route path="/create-nft" element={<Register />} />
-           <Route path="/new-user" element={<UserRegister />} />
+           <Route path="/digitize-assets" element={<Minter />} />
+           <Route path="/mint/:mint_type" element={<MintAssets/>} />
            <Route path="/auctions" element={<AuctionPage />} />
          </Routes>
     </BrowserRouter>

@@ -19,6 +19,7 @@ actor naft_icp {
         nftName: Text;
         nftDesc: Text;
         nftPrice: Nat;
+        nftTags: Text;
         nftToken: Nat;
         nftImageData: Text;
     };
@@ -85,7 +86,7 @@ actor naft_icp {
 
     };
 
-    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int, auctionHours: Int): async Principal {
+    public shared(msg) func mintNFT(tags:Text,name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int, auctionHours: Int): async Principal {
     
       let obtainedNFT: NFTData = {
         nftName = name;
@@ -93,6 +94,7 @@ actor naft_icp {
         nftPrice = Int.abs(price);
         nftToken = Int.abs(token);
         nftImageData = imageData;
+        nftTags = tags;
       };
 
         Cycles.add(300_000_000_000);

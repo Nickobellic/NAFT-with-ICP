@@ -1,4 +1,5 @@
 import {useContext, useCallback, createContext, useState, useEffect} from "react";
+import acceptExtensions from "../../utils/switcher";
 import React from "react";
 import axios from "axios";
 import {Link, useParams} from "react-router-dom";
@@ -14,19 +15,23 @@ import { Principal } from "@dfinity/principal";
 const MintAssets = () => {
     const {mint_type} = useParams();
     const [walletID, setWalletID] = useState("");
-    const [title, setTitle] = useState();
     const [color, setColor] = useState('gold');
     const [auth, setAuth] = useState("false");
-    const [forAuction, setForAuction] = useState(false);
-    const [basePrice, setBasePrice] = useState(0);
-    const [desc, setDesc] = useState();
     const [clicked, setClicked] = useState(false);
-    const [price, setPrice] = useState(0);
-    const [duration, setAuctionDuration] = useState(1);
-    const [token, setToken] = useState(0);
-    const [data, setData] = useState([]);
-    const [fileData,setFileData] = useState('');
-    const [fileName, setFileName] = useState('');
+    const [registerData,setRegisterData] = useState({
+        token: 1,
+        data: [],
+        price: 1,
+        desc: '',
+        tags: '',
+        title:'',
+        auctionStatus:false
+    });
+
+    const [auctionData, setAuctionData] = useState({
+        startingBidPrice: 1,
+        auctionDuration: 1,
+    });
 
 
     // Get NFT Details
@@ -58,9 +63,9 @@ const MintAssets = () => {
             
         }
 
+        authStatus();
 
-
-        nftDetails();
+        //nftDetails();
     }, []);
 
     // Function to get ID of NFTs owned by you
@@ -79,7 +84,7 @@ const MintAssets = () => {
         console.log(uintImage);*/
         setClicked(true);
         console.log("Started");
-        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID), forAuction, parseInt(basePrice), parseInt(duration) );
+        let mintedData = await naft_icp.mintNFT(registerData.tags,registerData.title, registerData.desc, parseInt(registerData.price), parseInt(registerData.token), registerData.data, Principal.fromText(walletID), registerData.auctionStatus, parseInt(auctionData.startingBidPrice), parseInt(auctionData.auctionDuration) );
         //console.log(Principal.toString(mintedData));
         console.log("Ended");
         await naft_icp.getYourNFTs(Principal.fromText(walletID));
@@ -94,7 +99,7 @@ const MintAssets = () => {
         // Encode the file using the FileReader API
         const reader = new FileReader();
         reader.onloadend = () => {
-            setData(reader.result);
+            setRegisterData({...registerData, data: reader.result});
             // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
         };
         reader.readAsDataURL(file);
@@ -165,49 +170,42 @@ const MintAssets = () => {
                 <div style={{marginTop: "40px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Title</h2>
                     <div className={styles.actions}>
-                    <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Title" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
-                    </div>
-                </div>
-
-                <div style={{marginTop: "30px"}}>
-                    <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Owner</h2>
-                    <div className={styles.actions}>
-                    <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Name of the Owner" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input name="nftTitle" onChange={(e) => {setRegisterData({...registerData, title: e.target.value});}} type="text" placeholder="Title" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Description</h2>
                     <div className={styles.actions}>
-                    <input name="nftDesc" onChange={(e) => setDesc(e.target.value)} type="text" placeholder="Description" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input name="nftDesc" onChange={(e) => setRegisterData({...registerData, desc: e.target.value})} type="text" placeholder="Description" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Token Price</h2>
                     <div className={styles.actions}>
-                    <input min="1" name="nftPrice" onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftPrice" onChange={(e) => setRegisterData({price: e.target.value})} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total {mint_type} Tokens</h2>
                     <div className={styles.actions}>
-                    <input min="1" name="nftTokens" onChange={(e) => setToken(e.target.value)} type="number" placeholder={`Total ${mint_type} Tokens`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftTokens" onChange={(e) => setRegisterData({token: e.target.value})} type="number" placeholder={`Total ${mint_type} Tokens`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Tags</h2>
                     <div className={styles.actions}>
-                    <input name="nftTitle" onChange={(e) => setTitle(e.target.value)} type="text" placeholder={`Tags related to ${mint_type}`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input name="nftTitle" onChange={(e) => setRegisterData({...registerData, tags: e.target.value})} type="text" placeholder={`Tags related to ${mint_type}`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Upload {mint_type} Document</h2>
                     <div className={styles.actions}>
-                    <input onChange={handleFileChange} accept="image/x-png,image/jpeg,image/gif,image/svg+xml,image/webp"
+                    <input onChange={handleFileChange} accept={acceptExtensions[mint_type]}
  name="nftData"  type="file" placeholder="Search" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
@@ -215,21 +213,21 @@ const MintAssets = () => {
                 <div>
                 <div style={{marginTop: "30px", marginLeft: "15%"}}>
                     <FormGroup>
-                        <FormControlLabel control={<Switch checked={forAuction} onChange={(e) => {setForAuction(e.target.checked)}} color="warning"/>} label="Auction the asset" sx={{color: "white"}} />
+                        <FormControlLabel control={<Switch checked={registerData.auctionStatus} onChange={(e) => {setRegisterData({...registerData,auctionStatus: e.target.checked})}} color="warning"/>} label="Auction the asset" sx={{color: "white"}} />
                     </FormGroup>
                 </div>
-                {forAuction && 
+                {registerData.auctionStatus && 
                         <div>
                         <div style={{marginTop: "30px"}}>
                             <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Starting Bid Price</h2>
                             <div className={styles.actions}>
-                                <input min="1" name="nftAuctionBasePrice" onChange={(e) => setBasePrice(e.target.value)} type="number" placeholder="Bid Price to start the Auction" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                                <input min="1" name="nftAuctionBasePrice" onChange={(e) => setAuctionData({...auctionData, startingBidPrice: e.target.value})} type="number" placeholder="Bid Price to start the Auction" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                             </div>
                         </div>
                         <div style={{marginTop: "30px"}}>
                             <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total Auction Duration (in Hours)</h2>
                             <div className={styles.actions}>
-                                <input min="1" name="nftAuctionHours" onChange={(e) => setAuctionDuration(e.target.value)} type="number" placeholder="Auction Duration (in Hours)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                                <input min="1" name="nftAuctionHours" onChange={(e) => setAuctionData({...auctionData, auctionDuration: e.target.value})} type="number" placeholder="Auction Duration (in Hours)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                             </div>
                         </div>
                         </div>

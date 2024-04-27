@@ -113,6 +113,7 @@ const Navbar = () => {
     </div>
            <Routes>
            <Route exact path="/" element={<HomePage />} />
+           <Route path="/new-user" element={<UserRegister />} />
            <Route path="/my-nfts" element={<Collections />} />
            <Route path="/digitize-assets" element={<Minter />} />
            <Route path="/mint/:mint_type" element={<MintAssets/>} />

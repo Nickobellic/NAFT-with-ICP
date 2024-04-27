@@ -1,9 +1,15 @@
+// Fetch NFT IDs that are owned by the CANISTER_OWNER_PRINCIPAL
+
+// Buying - Transfer NFT from OWNER_PRINCIPAL to requested Principal
+// Selling - Vice Versa
+
 import React, {useState, useEffect, useContext} from "react";
 import axios from "axios";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 import styles from '../../public/newProduct.module.css';
 import { locStore } from "./UserReg"; 
 import { Grid } from '@mui/material';
+import dotenv from 'dotenv';
 import ColleCard from '../components/CollecCard';
 import { Principal } from "@dfinity/principal";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -68,10 +74,26 @@ const Collections = () => {
         }
     }
 
-    async function handleBuy(team) {
+    async function handleBuy(team, nftID, ownerID, action) {
       let authStatus = await locStore.get("authenticated");
       if(authStatus === "true") {
-        console.log("Hi");
+        console.log("Transaction Started");
+        if(action == "Buy") {
+          let nftPrincipal = Principal.fromText(nftID);
+          let fromAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
+          let toAccount = Principal.fromText(ownerID);
+          const transferStatus = await naft_icp.transferNFT(nftPrincipal, fromAccount, toAccount);
+          console.log(transferStatus);
+        } else if(action == "Sell") {
+          let nftPrincipal = Principal.fromText(nftID);
+          let fromAccount = Principal.fromText(ownerID);
+          let toAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
+          const transferStatus = await naft_icp.transferNFT(nftPrincipal, fromAccount, toAccount);
+          console.log(transferStatus);
+        }
+        console.log("Transaction Ended");
+        window.location.reload();
+
       } else {
         await handleAuth();
       }

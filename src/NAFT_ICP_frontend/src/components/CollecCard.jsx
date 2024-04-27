@@ -2,23 +2,29 @@
 import React, {useState, useEffect} from 'react';
 import styles from '../../public/newProduct.module.css'; // Import CSS module for styling
 import { locStore } from '../pages/UserReg';
+import dotenv from 'dotenv';
 
 
 const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
   const [full, setFull] = useState(false);
+  const [action, setAction] = useState();
   const [ownersID, setOwnerID] = useState(ownerID);
   const [auth, setAuth] = useState(false);
+  const [authID, setAuthID] = useState("");
   const [seller,setSeller] = useState(false);
 
   async function checkOwnership() {
     let authUser = await locStore.get("walletID");
     let authStatus = await locStore.get("authenticated");
     setAuth(authStatus);
+    setAuthID(authUser);
     console.log(authUser, ownerID);
     if(authUser === ownerID) {
       setSeller(true);
+      setAction("Sell");
     } else {
       setSeller(false);
+      setAction("Buy");
     }
   }
 
@@ -46,9 +52,9 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
         <div className={styles.row}>
         <p>{left} Tokens Offered </p>
         </div>
-         <div className={`${styles.buttonRow}`}>
-          <button disabled={auth == true ? true : false} className={`${styles.buttonSize} ${styles.buyButton}`} onClick={onBuy}>{seller ? "Sell": "Buy"}</button>
-        </div>
+         { (authID != process.env.CANISTER_OWNER_PRINCIPAL && auth == "true") && <div className={`${styles.buttonRow}`}>
+          <button disabled={auth == true ? true : false} className={`${styles.buttonSize} ${styles.buyButton}`} onClick={(e) => onBuy(e, nftID, authID, action)}>{action}</button>
+        </div>}
         <div className={styles.nftIDBody}>
           <p className={styles.cardNFTLabel}>Owned By</p>
           <h6 style={{color: "red"}} className={`${styles.cardTitle} ${styles.nftID}`}>{ownerID}<a hidden={!full} onClick={() => setFull(true)}>...</a></h6>

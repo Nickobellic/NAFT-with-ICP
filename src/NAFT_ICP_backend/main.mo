@@ -140,5 +140,41 @@ actor naft_icp {
             };
         };
         return "";
+    };
+
+    public func transferNFT(nftID: Principal,from_principal: Principal, to_principal: Principal): async Text {
+        let ownedNFTs = ownersAndNFTHashMap.get(from_principal);
+        switch(ownedNFTs) {
+            case(?ownedNFTs) {
+                let found = Array.find<Principal>(ownedNFTs, func(x:Principal) {x == nftID});
+                switch(found) {
+                    case(?found) {
+                        let newNFTList = Array.filter<Principal>(ownedNFTs, func(x:Principal) {x != nftID}); // Removing that NFT from Owned Account
+                        ownersAndNFTHashMap.put(from_principal, newNFTList); // Modified NFT List by owned account
+
+                        let newOwnerNFTs = ownersAndNFTHashMap.get(to_principal);
+                        switch(newOwnerNFTs) { // Switch case for Empty NFT Array and non empty NFT Array for To_account
+                            case(?newOwnerNFTs) {
+                                let newOwnerNFTBuffer = Buffer.fromArray<Principal>(newOwnerNFTs); // Converting into buffer
+                                newOwnerNFTBuffer.add(nftID); // Adding NFT ID
+                                ownersAndNFTHashMap.put(to_principal, Buffer.toArray<Principal>(newOwnerNFTBuffer)); // Converting back into array to add it to hashmap
+                                return "NFT Transferred Successfully";
+                            };
+                            case(null) {
+                                let firstNFTForNewOwner = [nftID]; // Creating a new NFT array
+                                ownersAndNFTHashMap.put(to_principal, firstNFTForNewOwner); // Adding it to hashmap
+                                return "First NFT bought successfully";
+                            };
+                        }
+                    };
+                    case(null) { // When that NFT is not found
+                        return "NFT not found to purchase";
+                    }
+                }
+            };
+            case(null) { // When that NFT list itself is not found
+                return "No NFTs to purchase";
+            }
+        };
     }
 };

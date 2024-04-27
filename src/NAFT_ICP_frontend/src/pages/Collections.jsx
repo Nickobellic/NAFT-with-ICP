@@ -6,13 +6,14 @@ import { locStore } from "./UserReg";
 import { Grid } from '@mui/material';
 import ColleCard from '../components/CollecCard';
 import { Principal } from "@dfinity/principal";
-
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Collections = () => {
-
+    const navigate = useNavigate();
     const [nftData, setNFTData] = useState([]);
     const [nftIDs, setNFTIDs] = useState([]);
     const [owners, setOwners] = useState([]);
+    const [authenticated, setAuthenticated] = useState();
     const [imageList, setImageData] = useState([]);
     const [walletID, setWalletID] = useState('');
 
@@ -22,10 +23,14 @@ const Collections = () => {
 
     async function getWalletID() {
         let locStoreID = await locStore.get("walletID");
+        let isAuthenticated = await locStore.get("authenticated");
+        //console.log(isAuthenticated);
+        setAuthenticated(isAuthenticated);
         setWalletID(locStoreID);
     }
 
     async function getAllMintedNFTs() {
+        await getWalletID();
         let ownerList = [];
         let nfts = await naft_icp.getAllNFTs();
         let nftData = nfts.map((nft) => nft[1]);
@@ -45,11 +50,9 @@ const Collections = () => {
 
 
     useEffect(() => {
-        getWalletID();
         getAllMintedNFTs();
     }, []);
 
-console.log(owners);
     // ----------- MONGO DB -----------
     async function execApi() {
         try {
@@ -66,7 +69,18 @@ console.log(owners);
     }
 
     async function handleBuy(team) {
-        console.log("Hey");
+      let authStatus = await locStore.get("authenticated");
+      if(authStatus === "true") {
+        console.log("Hi");
+      } else {
+        await handleAuth();
+      }
+    }
+    
+
+    async function handleAuth() {
+      console.log("redirecting");
+      navigate("/new-user");
     }
 
     const convertArrayBufferToImage = (arrayBuffer) => {

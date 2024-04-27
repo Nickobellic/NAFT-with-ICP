@@ -10,10 +10,10 @@ import { Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 
 const Register = () => {
-    const [walletID, setWalletID] = useState('');
+    const [walletID, setWalletID] = useState("");
     const [title, setTitle] = useState();
     const [color, setColor] = useState('gold');
-    const [auth, setAuth] = useState(false);
+    const [auth, setAuth] = useState("false");
     const [desc, setDesc] = useState();
     const [clicked, setClicked] = useState(false);
     const [price, setPrice] = useState(0);
@@ -29,9 +29,10 @@ const Register = () => {
         async function authStatus() {
             let authenticated = await locStore.get("authenticated");
             setAuth(authenticated);
+            console.log(auth);
 
             let walletID = await locStore.get("walletID");
-            let displayID = auth == false ? walletID : "Unauthenticated";
+            let displayID = auth === "false" ? walletID : "Unauthenticated";
             //let color = auth==false ? "red" : "gold"; 
             setWalletID(displayID);
             setColor("gold");
@@ -39,6 +40,7 @@ const Register = () => {
         }
 
         async function nftDetails() {
+            await authStatus();
             console.log(await locStore.get("authenticated"), await locStore.get("walletID"));
             let allNFTs = await naft_icp.getAllNFTs();
             let nftData = allNFTs.map((nft) => nft[1]);
@@ -51,7 +53,7 @@ const Register = () => {
         }
 
 
-        authStatus();
+
         nftDetails();
     }, []);
 
@@ -144,7 +146,7 @@ const Register = () => {
       }, [disconnect]);*/
 
     return (
-        walletID != "2vxsx-fae"  ?
+        auth === "true"?
         (<div>
             <h1 style={{ color: 'white', display: "flex", justifyContent: "center", marginTop: "30px" }}>Create NFTs</h1>
             <div style={{marginTop: "30px"}}>

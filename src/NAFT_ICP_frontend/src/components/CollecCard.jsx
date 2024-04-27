@@ -7,21 +7,24 @@ import { locStore } from '../pages/UserReg';
 const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
   const [full, setFull] = useState(false);
   const [ownersID, setOwnerID] = useState(ownerID);
+  const [auth, setAuth] = useState(false);
   const [seller,setSeller] = useState(false);
 
   async function checkOwnership() {
     let authUser = await locStore.get("walletID");
-    console.log(authUser);
-    if(authUser === ownersID) {
+    let authStatus = await locStore.get("authenticated");
+    setAuth(authStatus);
+    console.log(authUser, ownerID);
+    if(authUser === ownerID) {
       setSeller(true);
+    } else {
+      setSeller(false);
     }
   }
 
   useEffect(() => {
-    checkOwnership();
-  }, [])
-
-  console.log(seller);
+      checkOwnership();      
+  });
 
   return (
     <div className={styles.card}>
@@ -43,8 +46,8 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
         <div className={styles.row}>
         <p>{left} Tokens Offered </p>
         </div>
-        <div className={`${styles.buttonRow}`}>
-          <button className={`${styles.buttonSize} ${styles.buyButton}`} onClick={onBuy}>Sell</button>
+         <div className={`${styles.buttonRow}`}>
+          <button disabled={auth == true ? true : false} className={`${styles.buttonSize} ${styles.buyButton}`} onClick={onBuy}>{seller ? "Sell": "Buy"}</button>
         </div>
         <div className={styles.nftIDBody}>
           <p className={styles.cardNFTLabel}>Owned By</p>

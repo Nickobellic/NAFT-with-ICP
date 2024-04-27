@@ -59,3 +59,5 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Write your own `createActor` constructor
 
 CANISTER_OWNER_PRINCIPAL=iyhzu-rpvla-2pguf-hjevw-arpzf-fefqo-rb2aw-ucp5d-m73e7-za7ca-mqe
+
+oncontextmenu="return false"

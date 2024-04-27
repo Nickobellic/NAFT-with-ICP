@@ -3,6 +3,8 @@ import React from "react";
 import axios from "axios";
 import {Link} from "react-router-dom";
 import { locStore } from "./UserReg";
+import { Switch } from "@mui/material";
+import {FormGroup, FormControlLabel} from "@mui/material";
 import styles from "../../public/Navbar.module.css";
 import authStyles from "../../public/UserReg.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
@@ -14,6 +16,8 @@ const Register = () => {
     const [title, setTitle] = useState();
     const [color, setColor] = useState('gold');
     const [auth, setAuth] = useState("false");
+    const [forAuction, setForAuction] = useState(false);
+    const [basePrice, setBasePrice] = useState(0);
     const [desc, setDesc] = useState();
     const [clicked, setClicked] = useState(false);
     const [price, setPrice] = useState(0);
@@ -73,7 +77,7 @@ const Register = () => {
         console.log(uintImage);*/
         setClicked(true);
         console.log("Started");
-        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID) );
+        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID), forAuction, parseInt(basePrice) );
         //console.log(Principal.toString(mintedData));
         console.log("Ended");
         await naft_icp.getYourNFTs(Principal.fromText(walletID));
@@ -125,6 +129,7 @@ const Register = () => {
         link.download = fileName;
         link.click();
     }
+    
     
     /*function ellipseAddress(
         address,
@@ -192,6 +197,18 @@ const Register = () => {
                 </div>
 
                 <div>
+                <div style={{marginTop: "30px", marginLeft: "15%"}}>
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={forAuction} onChange={(e) => {setForAuction(e.target.checked)}} color="warning"/>} label="Auction the asset" sx={{color: "white"}} />
+                    </FormGroup>
+                </div>
+                {forAuction && 
+                        <div style={{marginTop: "30px"}}>
+                            <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Starting Bid Price</h2>
+                            <div className={styles.actions}>
+                                <input name="nftAuctionBasePrice" onChange={(e) => setBasePrice(e.target.value)} type="number" placeholder="Bid Price to start the Auction" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                            </div>
+                        </div>}
                     <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
                 </div>
             </div>

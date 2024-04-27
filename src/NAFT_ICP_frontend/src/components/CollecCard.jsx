@@ -32,6 +32,8 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
       checkOwnership();      
   });
 
+  console.log(process.env.CANISTER_OWNER_PRINCIPAL);
+
   return (
     <div className={styles.card}>
       <div className={styles.cardBanner}>

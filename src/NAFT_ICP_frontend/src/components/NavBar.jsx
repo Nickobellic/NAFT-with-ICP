@@ -98,7 +98,7 @@ const Navbar = () => {
         <li><Link to="/create-nft">Create</Link></li>
         <li><Link to="/my-nfts">Collections</Link></li>
         <li><Link to="#">About</Link></li>
-        <li><Link to="#">Contact</Link></li>
+        <li><Link to="/auctions">Auctions</Link></li>
         <li><Link to="/new-user">Wallet</Link></li>
       </ul>
       <div className={styles.actions}>
@@ -113,6 +113,7 @@ const Navbar = () => {
            <Route path="/my-nfts" element={<Collections />} />
            <Route path="/create-nft" element={<Register />} />
            <Route path="/new-user" element={<UserRegister />} />
+           <Route path="/auctions" />
          </Routes>
     </BrowserRouter>
   );

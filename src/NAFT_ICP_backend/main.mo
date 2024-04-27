@@ -11,10 +11,11 @@ import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
 import Array "mo:base/Array";
 import Bool "mo:base/Bool";
+import Prelude "mo:base/Prelude";
 
 actor naft_icp {
 
-    public type NFTData = {
+    private type NFTData = {
         nftName: Text;
         nftDesc: Text;
         nftPrice: Nat;
@@ -22,24 +23,34 @@ actor naft_icp {
         nftImageData: Text;
     };
 
-
-
+    private type AuctionData = {
+        assetID: Principal;
+        startingPrice: Nat;
+    };
 
     stable var mintedNFTs = List.nil<Principal>();
     private stable var _nftAndIDList : [(Principal, NFTData)] = [];
     private stable var _ownersAndNFTList: [(Principal, [Principal])] = [];
+    private stable var _auctionOwnersAndNFTList: [(Principal,[Principal])] = [];
+    private stable var _nftWithAuctionDetailsList: [(Principal, AuctionData)] = [];
 
     var nftWithIDHashMap : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndIDList.vals(), 0, Principal.equal, Principal.hash);
     var ownersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_ownersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
+    var auctionOwnersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_auctionOwnersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
+    var nftWithAuctionDetailsHashMap: HashMap.HashMap<Principal, AuctionData> = HashMap.fromIter(_nftWithAuctionDetailsList.vals(), 0, Principal.equal, Principal.hash);
 
     system func preupgrade() {
         _nftAndIDList := Iter.toArray(nftWithIDHashMap.entries());
         _ownersAndNFTList := Iter.toArray(ownersAndNFTHashMap.entries());
+        _auctionOwnersAndNFTList := Iter.toArray(auctionOwnersAndNFTHashMap.entries());
+        _nftWithAuctionDetailsList := Iter.toArray(nftWithAuctionDetailsHashMap.entries());
     };
 
     system func postupgrade() {
         _nftAndIDList := [];
         _ownersAndNFTList := [];
+        _auctionOwnersAndNFTList := [];
+        _nftWithAuctionDetailsList := [];
     };
 
     public func greet() : async Text {
@@ -61,7 +72,7 @@ actor naft_icp {
 
     };
 
-    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal): async Principal {
+    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int): async Principal {
     
       let obtainedNFT: NFTData = {
         nftName = name;
@@ -81,6 +92,7 @@ actor naft_icp {
       
       let nftID = await newNFT.getNFTId();
 
+      if(auctionMint == false) {
       nftWithIDHashMap.put(nftID, obtainedNFT);
       var prevBoughtNFTList = ownersAndNFTHashMap.get(minter);
       switch(prevBoughtNFTList) {
@@ -96,7 +108,36 @@ actor naft_icp {
 
       };
 
-      return nftID;   
+      return nftID; } else {
+        let auctionDetails: AuctionData = {
+                    assetID: Principal = nftID;
+                    startingPrice: Nat = Int.abs(startingAmount);
+                };
+        nftWithAuctionDetailsHashMap.put(nftID, auctionDetails);
+        var previousAuctionsByMinter = auctionOwnersAndNFTHashMap.get(minter);
+        switch(previousAuctionsByMinter) {
+            case(?previousAuctionsByMinter) {
+                let previousAuctionsBuffer = Buffer.fromArray<Principal>(previousAuctionsByMinter);
+                previousAuctionsBuffer.add(nftID);
+                auctionOwnersAndNFTHashMap.put(minter, Buffer.toArray<Principal>(previousAuctionsBuffer));
+                return nftID;
+            }; case(null) {
+                let firstAuctionByMinter = [nftID];
+                auctionOwnersAndNFTHashMap.put(minter, firstAuctionByMinter);
+                return nftID;
+            }
+        }
+      }  
+    };
+
+    public query func fetchAllAuctionDetails(): async [AuctionData] {
+        let allAuctionDetails = Iter.toArray(nftWithAuctionDetailsHashMap.vals());
+        return allAuctionDetails;
+    };
+
+    public query func fetchAllAuctionAssets(): async [Principal] {
+        let allAuctionAssetPrincipals = Iter.toArray(nftWithAuctionDetailsHashMap.keys());
+        return allAuctionAssetPrincipals;
     };
 
     public query func getAllNFTs():async [(Principal, NFTData)] {

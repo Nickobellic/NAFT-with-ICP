@@ -26,6 +26,14 @@ actor naft_icp {
     private type AuctionData = {
         assetID: Principal;
         startingPrice: Nat;
+        totalHours: Nat;
+        docType: Text;
+    };
+
+    private type BiddingData = {
+        bidderID: Principal;
+        bidAmount: Nat;
+        bidTime: Text;
     };
 
     stable var mintedNFTs = List.nil<Principal>();
@@ -33,17 +41,21 @@ actor naft_icp {
     private stable var _ownersAndNFTList: [(Principal, [Principal])] = [];
     private stable var _auctionOwnersAndNFTList: [(Principal,[Principal])] = [];
     private stable var _nftWithAuctionDetailsList: [(Principal, AuctionData)] = [];
+    private stable var _auctionNFTIDwithNFTDataList: [(Principal, NFTData)] = [];
+    private stable var bidTransactionList = List.nil<BiddingData>();
 
     var nftWithIDHashMap : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndIDList.vals(), 0, Principal.equal, Principal.hash);
     var ownersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_ownersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
     var auctionOwnersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_auctionOwnersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
     var nftWithAuctionDetailsHashMap: HashMap.HashMap<Principal, AuctionData> = HashMap.fromIter(_nftWithAuctionDetailsList.vals(), 0, Principal.equal, Principal.hash);
+    var auctionNFTIDwithNFTDataHashMap: HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_auctionNFTIDwithNFTDataList.vals(), 0, Principal.equal, Principal.hash);
 
     system func preupgrade() {
         _nftAndIDList := Iter.toArray(nftWithIDHashMap.entries());
         _ownersAndNFTList := Iter.toArray(ownersAndNFTHashMap.entries());
         _auctionOwnersAndNFTList := Iter.toArray(auctionOwnersAndNFTHashMap.entries());
         _nftWithAuctionDetailsList := Iter.toArray(nftWithAuctionDetailsHashMap.entries());
+        _auctionNFTIDwithNFTDataList := Iter.toArray(auctionNFTIDwithNFTDataHashMap.entries());
     };
 
     system func postupgrade() {
@@ -51,6 +63,7 @@ actor naft_icp {
         _ownersAndNFTList := [];
         _auctionOwnersAndNFTList := [];
         _nftWithAuctionDetailsList := [];
+        _auctionNFTIDwithNFTDataList := [];
     };
 
     public func greet() : async Text {
@@ -72,7 +85,7 @@ actor naft_icp {
 
     };
 
-    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int): async Principal {
+    public shared(msg) func mintNFT(name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int, auctionHours: Int): async Principal {
     
       let obtainedNFT: NFTData = {
         nftName = name;
@@ -112,8 +125,11 @@ actor naft_icp {
         let auctionDetails: AuctionData = {
                     assetID: Principal = nftID;
                     startingPrice: Nat = Int.abs(startingAmount);
+                    totalHours: Nat = Int.abs(auctionHours);
+                    docType: Text = "NFT";
                 };
-        nftWithAuctionDetailsHashMap.put(nftID, auctionDetails);
+        nftWithAuctionDetailsHashMap.put(nftID, auctionDetails); // Map NFT ID with Auction details
+        auctionNFTIDwithNFTDataHashMap.put(nftID, obtainedNFT); // Map NFT ID with NFT data details
         var previousAuctionsByMinter = auctionOwnersAndNFTHashMap.get(minter);
         switch(previousAuctionsByMinter) {
             case(?previousAuctionsByMinter) {
@@ -217,5 +233,25 @@ actor naft_icp {
                 return "No NFTs to purchase";
             }
         };
+    };
+
+    public func registerTransaction(callerID: Principal, amount: Int, time:Text): async Text {
+        let transactionData: BiddingData = {
+            bidderID:Principal = callerID;
+            bidAmount: Nat = Int.abs(amount);
+            bidTime: Text = time;
+        };
+
+
+        bidTransactionList := List.push<BiddingData>(transactionData, bidTransactionList);
+
+        return "Bid request recorded successfully";
+    }; 
+
+    public query func getAllBidTransaction(): async [BiddingData] {
+        let allBids = List.toArray<BiddingData>(bidTransactionList);
+
+        return allBids;
     }
+
 };

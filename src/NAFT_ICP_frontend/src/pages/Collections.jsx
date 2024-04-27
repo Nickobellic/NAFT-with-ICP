@@ -78,6 +78,7 @@ const Collections = () => {
       let authStatus = await locStore.get("authenticated");
       if(authStatus === "true") {
         console.log("Transaction Started");
+        console.log(process.env.CANISTER_OWNER_PRINCIPAL);
         if(action == "Buy") {
           let nftPrincipal = Principal.fromText(nftID);
           let fromAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);

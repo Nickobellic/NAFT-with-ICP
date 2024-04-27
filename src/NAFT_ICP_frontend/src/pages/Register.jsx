@@ -21,6 +21,7 @@ const Register = () => {
     const [desc, setDesc] = useState();
     const [clicked, setClicked] = useState(false);
     const [price, setPrice] = useState(0);
+    const [duration, setAuctionDuration] = useState(1);
     const [token, setToken] = useState(0);
     const [data, setData] = useState([]);
     const [fileData,setFileData] = useState('');
@@ -77,7 +78,7 @@ const Register = () => {
         console.log(uintImage);*/
         setClicked(true);
         console.log("Started");
-        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID), forAuction, parseInt(basePrice) );
+        let mintedData = await naft_icp.mintNFT(title, desc, parseInt(price), parseInt(token), data, Principal.fromText(walletID), forAuction, parseInt(basePrice), parseInt(duration) );
         //console.log(Principal.toString(mintedData));
         console.log("Ended");
         await naft_icp.getYourNFTs(Principal.fromText(walletID));
@@ -177,14 +178,14 @@ const Register = () => {
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Token Price</h2>
                     <div className={styles.actions}>
-                    <input name="nftPrice" onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftPrice" onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total Tokens</h2>
                     <div className={styles.actions}>
-                    <input name="nftTokens" onChange={(e) => setToken(e.target.value)} type="number" placeholder="Total Tokens" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftTokens" onChange={(e) => setToken(e.target.value)} type="number" placeholder="Total Tokens" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
@@ -203,12 +204,21 @@ const Register = () => {
                     </FormGroup>
                 </div>
                 {forAuction && 
+                        <div>
                         <div style={{marginTop: "30px"}}>
                             <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Starting Bid Price</h2>
                             <div className={styles.actions}>
-                                <input name="nftAuctionBasePrice" onChange={(e) => setBasePrice(e.target.value)} type="number" placeholder="Bid Price to start the Auction" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                                <input min="1" name="nftAuctionBasePrice" onChange={(e) => setBasePrice(e.target.value)} type="number" placeholder="Bid Price to start the Auction" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                             </div>
-                        </div>}
+                        </div>
+                        <div style={{marginTop: "30px"}}>
+                            <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total Auction Duration (in Hours)</h2>
+                            <div className={styles.actions}>
+                                <input min="1" name="nftAuctionHours" onChange={(e) => setAuctionDuration(e.target.value)} type="number" placeholder="Auction Duration (in Hours)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                            </div>
+                        </div>
+                        </div>
+                        }
                     <button disabled={clicked} className={styles.signupButton} style={{ marginTop: "50px", width: "10%", marginLeft: "45%", marginRight: "45%" }} onClick={handleMint}>Mint</button>
                 </div>
             </div>

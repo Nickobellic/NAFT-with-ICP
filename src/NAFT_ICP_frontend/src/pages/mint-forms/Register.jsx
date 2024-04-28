@@ -83,11 +83,12 @@ const MintAssets = () => {
         /*let uintImage = data.toString('binary');
         console.log(uintImage);*/
         setClicked(true);
+        console.log(registerData.title, registerData.price, registerData.desc);
         console.log("Started");
-        let mintedData = await naft_icp.mintNFT(registerData.tags,registerData.title, registerData.desc, parseInt(registerData.price), parseInt(registerData.token), registerData.data, Principal.fromText(walletID), registerData.auctionStatus, parseInt(auctionData.startingBidPrice), parseInt(auctionData.auctionDuration) );
+        let mintedData = await naft_icp.mintAsset(mint_type,registerData.tags,registerData.title, registerData.desc, parseInt(registerData.price), parseInt(registerData.token), registerData.data, Principal.fromText(walletID), registerData.auctionStatus, parseInt(auctionData.startingBidPrice), parseInt(auctionData.auctionDuration) );
         //console.log(Principal.toString(mintedData));
         console.log("Ended");
-        await naft_icp.getYourNFTs(Principal.fromText(walletID));
+        //await naft_icp.getYourNFTs(Principal.fromText(walletID));
         setClicked(false);
 
     }
@@ -184,14 +185,14 @@ const MintAssets = () => {
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>{mint_type} Token Price</h2>
                     <div className={styles.actions}>
-                    <input min="1" name="nftPrice" onChange={(e) => setRegisterData({price: e.target.value})} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftPrice" onChange={(e) => setRegisterData({...registerData,price: e.target.value})} type="number" placeholder="Token Price (in XDC)" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Total {mint_type} Tokens</h2>
                     <div className={styles.actions}>
-                    <input min="1" name="nftTokens" onChange={(e) => setRegisterData({token: e.target.value})} type="number" placeholder={`Total ${mint_type} Tokens`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                    <input min="1" name="nftTokens" onChange={(e) => setRegisterData({...registerData,token: e.target.value})} type="number" placeholder={`Total ${mint_type} Tokens`} className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
                     </div>
                 </div>
 

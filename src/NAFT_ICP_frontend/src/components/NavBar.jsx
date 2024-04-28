@@ -77,11 +77,11 @@ const Navbar = () => {
       const maniacNFT = await naft_icp.greetNFT("Cryptodunks");
       const anotherManiacNFT = await naft_icp.greetNFT("Cryptodunks");
 
-      const caller = await naft_icp.whoIsCalling();
+      //const caller = await naft_icp.whoIsCalling();
 
       console.log(maniacNFT);
       console.log(anotherManiacNFT);
-      console.log(caller);
+      //console.log(caller);
     }
     getName();
   }, []); 

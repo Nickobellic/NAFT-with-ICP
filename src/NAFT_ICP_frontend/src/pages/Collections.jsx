@@ -38,11 +38,24 @@ const Collections = () => {
     async function getAllMintedNFTs() {
         await getWalletID();
         let ownerList = [];
+        let allNFTs = [];
         let nfts = await naft_icp.getAllNFTs();
-        let nftData = nfts.map((nft) => nft[1]);
-        let nftIDs = nfts.map((nft) => nft[0].toText());
-        setNFTData(nftData);
-        setNFTIDs(nftIDs);
+        //let nftData = nfts.map((nft) => nft[1]);
+        let ownerIDs = nfts.map((nft) => nft[0].toText());
+        let nftList = [];
+
+        nfts.forEach((nft) => {
+          nftList.push(nft[1].map((nft) => nft.toText()));
+        });
+        //setNFTData(nftData);
+        for(let nftID=0; nftID<ownerIDs.length; nftID++) {
+          let ownerWithNFTs = {};
+          ownerWithNFTs[ownerIDs[nftID]] = nftList[nftID];
+          allNFTs.push(ownerWithNFTs);
+        }
+
+        console.log(allNFTs);
+        setNFTIDs(ownerIDs);
 
         for(const nft of nftIDs) {
           let owner = await naft_icp.getOwner(Principal.fromText(nftIDs[0]));

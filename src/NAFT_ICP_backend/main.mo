@@ -1,4 +1,4 @@
-import NFTActor "./NFT/NFT";
+import AssetActor "./Asset/Asset";
 import Cycles "mo:base/ExperimentalCycles";
 import Principal "mo:base/Principal";
 import Debug "mo:base/Debug";
@@ -15,13 +15,21 @@ import Prelude "mo:base/Prelude";
 
 actor naft_icp {
 
-    private type NFTData = {
-        nftName: Text;
-        nftDesc: Text;
-        nftPrice: Nat;
-        nftTags: Text;
-        nftToken: Nat;
-        nftImageData: Text;
+    private type AssetData = {
+        assetType: Text;
+        assetName: Text;
+        assetDesc: Text;
+        assetPrice: Nat;
+        assetTags: Text;
+        assetToken: Nat;
+        dataString: Text;
+    };
+
+    private type OwnerInventory = {
+        nftAssets: [Principal];
+        textAssets: [Principal];
+        audioAssets: [Principal];
+        videoAssets: [Principal];
     };
 
     private type AuctionData = {
@@ -29,6 +37,7 @@ actor naft_icp {
         startingPrice: Nat;
         totalHours: Nat;
         docType: Text;
+        auctionStatus: Text;
     };
 
     private type BiddingData = {
@@ -37,34 +46,46 @@ actor naft_icp {
         bidTime: Text;
     };
 
-    stable var mintedNFTs = List.nil<Principal>();
-    private stable var _nftAndIDList : [(Principal, NFTData)] = [];
-    private stable var _ownersAndNFTList: [(Principal, [Principal])] = [];
-    private stable var _auctionOwnersAndNFTList: [(Principal,[Principal])] = [];
-    private stable var _nftWithAuctionDetailsList: [(Principal, AuctionData)] = [];
-    private stable var _auctionNFTIDwithNFTDataList: [(Principal, NFTData)] = [];
+    //stable var mintedNFTs = List.nil<Principal>();
+    private stable var _assetIDAndassetDataList : [(Principal, AssetData)] = [];
+    private stable var _ownerIDAndInventoryList: [(Principal, OwnerInventory)] = []; // For normal buy, sell
+    private stable var _auctionOwnersAndInventoryList: [(Principal, OwnerInventory)] = []; // For Auctioned Assets
+    private stable var _assetIDWithAuctionDetailsList: [(Principal, AuctionData)] = []; // Auction Asset ID and auction details
+    private stable var _auctionAssetIDwithAssetDataList: [(Principal, AssetData)] = []; // Auction Asset ID and Asset details
+    // Auction Asset ID and bids of it
+    private stable var _auctionAssetIDwithBidTransactionList: [(Principal, BiddingData)] = [];
     private stable var bidTransactionList = List.nil<BiddingData>();
 
-    var nftWithIDHashMap : HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_nftAndIDList.vals(), 0, Principal.equal, Principal.hash);
-    var ownersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_ownersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
-    var auctionOwnersAndNFTHashMap: HashMap.HashMap<Principal, [Principal]> = HashMap.fromIter(_auctionOwnersAndNFTList.vals(), 0, Principal.equal, Principal.hash);
-    var nftWithAuctionDetailsHashMap: HashMap.HashMap<Principal, AuctionData> = HashMap.fromIter(_nftWithAuctionDetailsList.vals(), 0, Principal.equal, Principal.hash);
-    var auctionNFTIDwithNFTDataHashMap: HashMap.HashMap<Principal, NFTData> = HashMap.fromIter(_auctionNFTIDwithNFTDataList.vals(), 0, Principal.equal, Principal.hash);
+    // Asset ID with Asset Data
+    var assetIDWithAssetDataHashMap : HashMap.HashMap<Principal, AssetData> = HashMap.fromIter(_assetIDAndassetDataList.vals(), 0, Principal.equal, Principal.hash);
+    // Owner ID with only Asset ID
+    var ownerIDAndInventoryHashMap: HashMap.HashMap<Principal, OwnerInventory> = HashMap.fromIter(_ownerIDAndInventoryList.vals(), 0, Principal.equal, Principal.hash);
+    
+    // Auction Owner with list of NFT IDs
+    var auctionOwnersAndInventoryHashMap: HashMap.HashMap<Principal, OwnerInventory> = HashMap.fromIter(_auctionOwnersAndInventoryList.vals(), 0, Principal.equal, Principal.hash);
+    // NFT ID with Auction Data
+    var assetIDWithAuctionDetailsHashMap: HashMap.HashMap<Principal, AuctionData> = HashMap.fromIter(_assetIDWithAuctionDetailsList.vals(), 0, Principal.equal, Principal.hash);
+    // Auction Asset ID with Asset Data
+    var auctionAssetIDwithAssetDataHashMap: HashMap.HashMap<Principal, AssetData> = HashMap.fromIter(_auctionAssetIDwithAssetDataList.vals(), 0, Principal.equal, Principal.hash);
+    // Auction Asset ID with Bid Transaction Data
+    var auctionAssetIDwithBidTransactionHashMap: HashMap.HashMap<Principal, BiddingData> = HashMap.fromIter(_auctionAssetIDwithBidTransactionList.vals(), 0, Principal.equal, Principal.hash);
 
     system func preupgrade() {
-        _nftAndIDList := Iter.toArray(nftWithIDHashMap.entries());
-        _ownersAndNFTList := Iter.toArray(ownersAndNFTHashMap.entries());
-        _auctionOwnersAndNFTList := Iter.toArray(auctionOwnersAndNFTHashMap.entries());
-        _nftWithAuctionDetailsList := Iter.toArray(nftWithAuctionDetailsHashMap.entries());
-        _auctionNFTIDwithNFTDataList := Iter.toArray(auctionNFTIDwithNFTDataHashMap.entries());
+        _assetIDAndassetDataList := Iter.toArray(assetIDWithAssetDataHashMap.entries());
+        _ownerIDAndInventoryList := Iter.toArray(ownerIDAndInventoryHashMap.entries());
+        _auctionOwnersAndInventoryList := Iter.toArray(auctionOwnersAndInventoryHashMap.entries());
+        _assetIDWithAuctionDetailsList := Iter.toArray(assetIDWithAuctionDetailsHashMap.entries());
+        _auctionAssetIDwithAssetDataList := Iter.toArray(auctionAssetIDwithAssetDataHashMap.entries());
+        _auctionAssetIDwithBidTransactionList := Iter.toArray(auctionAssetIDwithBidTransactionHashMap.entries());
     };
 
     system func postupgrade() {
-        _nftAndIDList := [];
-        _ownersAndNFTList := [];
-        _auctionOwnersAndNFTList := [];
-        _nftWithAuctionDetailsList := [];
-        _auctionNFTIDwithNFTDataList := [];
+        _assetIDAndassetDataList := [];
+        _ownerIDAndInventoryList := [];
+        _auctionOwnersAndInventoryList := [];
+        _assetIDWithAuctionDetailsList := [];
+        _auctionAssetIDwithAssetDataList := [];
+        _auctionAssetIDwithBidTransactionList := [];
     };
 
     public func greet() : async Text {
@@ -86,31 +107,148 @@ actor naft_icp {
 
     };
 
-    public shared(msg) func mintNFT(tags:Text,name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int, auctionHours: Int): async Principal {
+    public shared(msg) func mintAsset(asset_type: Text,tags:Text,name: Text, desc: Text, price: Int, token: Int, imageData:Text, minter: Principal, auctionMint: Bool, startingAmount: Int, auctionHours: Int): async Principal {
     
-      let obtainedNFT: NFTData = {
-        nftName = name;
-        nftDesc = desc;
-        nftPrice = Int.abs(price);
-        nftToken = Int.abs(token);
-        nftImageData = imageData;
-        nftTags = tags;
+      let obtainedAsset: AssetData = {
+        assetType = asset_type;
+        assetName = name;
+        assetDesc = desc;
+        assetPrice = Int.abs(price);
+        assetToken = Int.abs(token);
+        dataString = imageData;
+        assetTags = tags;
       };
 
         Cycles.add(300_000_000_000);
 
     Debug.print("Cycles updated "# Nat.toText(Cycles.balance()));
 
-      let newNFT = await NFTActor.NFT(name, desc, Int.abs(price), Int.abs(token), imageData);
+      let newAsset = await AssetActor.Asset(asset_type,name, desc, Int.abs(price),tags, Int.abs(token), imageData);
 
     Debug.print("New Cycles "# Nat.toText(Cycles.balance()));
       
-      let nftID = await newNFT.getNFTId();
-
+      let assetID = await newAsset.getAssetId();
+      
+      // If the asset is not for Auction
       if(auctionMint == false) {
-      nftWithIDHashMap.put(nftID, obtainedNFT);
-      var prevBoughtNFTList = ownersAndNFTHashMap.get(minter);
-      switch(prevBoughtNFTList) {
+        // Map asset data with asset ID
+      assetIDWithAssetDataHashMap.put(assetID, obtainedAsset);
+      // Fetching the inventory of Owner
+      var minterInventory = ownerIDAndInventoryHashMap.get(minter);
+      
+      // Checking the Owner's Inventory
+      switch(minterInventory) {
+        case(?minterInventory) {
+            if(asset_type == "NFT") {
+            var minterNFTs = minterInventory.nftAssets; // Obtaining NFT Assets
+            var nftBuffer = Buffer.fromArray<Principal>(minterNFTs); // Converting it into Buffer
+            nftBuffer.add(assetID); // Add new Asset ID to it
+            // Create new Owner Inventory with modified NFT List
+            var newInventory:OwnerInventory = {
+                nftAssets:[Principal] = Buffer.toArray<Principal>(nftBuffer);
+                audioAssets:[Principal] = minterInventory.audioAssets;
+                videoAssets:[Principal] = minterInventory.videoAssets;
+                textAssets:[Principal] = minterInventory.textAssets;
+            };
+            ownerIDAndInventoryHashMap.put(minter, newInventory); // Updating the HashMap
+            } 
+            
+            else if(asset_type == "Audio") {
+                var minterAudios = minterInventory.audioAssets; // Obtaining Audio Assets
+            var audioBuffer = Buffer.fromArray<Principal>(minterAudios); // Converting it into Buffer
+            audioBuffer.add(assetID); // Add new Asset ID to it
+            // Create new Owner Inventory with modified Audio List
+            var newInventory:OwnerInventory = {
+                nftAssets:[Principal] = minterInventory.nftAssets;
+                audioAssets:[Principal] = Buffer.toArray<Principal>(audioBuffer);
+                videoAssets:[Principal] = minterInventory.videoAssets;
+                textAssets:[Principal] = minterInventory.textAssets;
+            };
+            ownerIDAndInventoryHashMap.put(minter, newInventory); // Updating the HashMap
+            } 
+            
+            else if(asset_type == "Video") {
+                            var minterVideos = minterInventory.videoAssets; // Obtaining Video Assets
+            var videoBuffer = Buffer.fromArray<Principal>(minterVideos); // Converting it into Buffer
+            videoBuffer.add(assetID); // Add new Asset ID to it
+            // Create new Owner Inventory with modified Video List
+            var newInventory:OwnerInventory = {
+                nftAssets:[Principal] = minterInventory.nftAssets;
+                audioAssets:[Principal] = minterInventory.audioAssets;
+                videoAssets:[Principal] = Buffer.toArray<Principal>(videoBuffer);
+                textAssets:[Principal] = minterInventory.textAssets;
+            };
+            ownerIDAndInventoryHashMap.put(minter, newInventory); // Updating the HashMap
+            } 
+            
+            
+            else if(asset_type == "Text") {
+                            var minterTexts = minterInventory.textAssets; // Obtaining NFT Assets
+            var textBuffer = Buffer.fromArray<Principal>(minterTexts); // Converting it into Buffer
+            textBuffer.add(assetID); // Add new Asset ID to it
+            // Create new Owner Inventory with modified NFT List
+            var newInventory:OwnerInventory = {
+                nftAssets:[Principal] = minterInventory.nftAssets;
+                audioAssets:[Principal] = minterInventory.audioAssets;
+                videoAssets:[Principal] = minterInventory.videoAssets;
+                textAssets:[Principal] = Buffer.toArray<Principal>(textBuffer);
+            };
+            ownerIDAndInventoryHashMap.put(minter, newInventory); // Updating the HashMap
+            } 
+            
+            
+            else {
+
+            };
+        };
+        case null {  
+            if(asset_type == "NFT") {
+            // If NFT is the first thing they mint
+            let newOwnerInventory: OwnerInventory = {
+                nftAssets:[Principal] = [assetID];
+                audioAssets:[Principal] = [];
+                textAssets:[Principal] = [];
+                videoAssets:[Principal] = [];
+            };
+            ownerIDAndInventoryHashMap.put(minter, newOwnerInventory); // Updating the HashMap
+
+            } else if(asset_type == "Audio") {
+            // If Audio is the first thing they mint
+            let newOwnerInventory: OwnerInventory = {
+                nftAssets:[Principal] = [];
+                audioAssets:[Principal] = [assetID];
+                textAssets:[Principal] = [];
+                videoAssets:[Principal] = [];
+            };
+            ownerIDAndInventoryHashMap.put(minter, newOwnerInventory); // Updating the HashMap
+
+            } else if(asset_type == "Text") {
+            // If Text is the first thing they mint
+            let newOwnerInventory: OwnerInventory = {
+                nftAssets:[Principal] = [];
+                audioAssets:[Principal] = [];
+                textAssets:[Principal] = [assetID];
+                videoAssets:[Principal] = [];
+            };
+            ownerIDAndInventoryHashMap.put(minter, newOwnerInventory); // Updating the HashMap
+
+            } else if(asset_type == "Video") {
+            // If Video is the first thing they mint
+            let newOwnerInventory: OwnerInventory = {
+                nftAssets:[Principal] = [];
+                audioAssets:[Principal] = [];
+                textAssets:[Principal] = [];
+                videoAssets:[Principal] = [assetID];
+            };
+            ownerIDAndInventoryHashMap.put(minter, newOwnerInventory); // Updating the HashMap
+            } else {
+
+            };
+
+        }
+      };
+
+      /*switch(minterInventory) { // Check for any existence of previous assets
         case null {
             ownersAndNFTHashMap.put(minter, [nftID]);
         };
@@ -121,33 +259,150 @@ actor naft_icp {
             ownersAndNFTHashMap.put(minter, Buffer.toArray<Principal>(availableNFTs));
         }
 
-      };
+      };*/
 
-      return nftID; } else {
+      return assetID; } 
+      
+      else {
+        // If it is for Auction
         let auctionDetails: AuctionData = {
-                    assetID: Principal = nftID;
+                    assetID: Principal = assetID;
                     startingPrice: Nat = Int.abs(startingAmount);
                     totalHours: Nat = Int.abs(auctionHours);
-                    docType: Text = "NFT";
+                    docType: Text = asset_type;
+                    auctionStatus: Text = "Ongoing";
                 };
-        nftWithAuctionDetailsHashMap.put(nftID, auctionDetails); // Map NFT ID with Auction details
-        auctionNFTIDwithNFTDataHashMap.put(nftID, obtainedNFT); // Map NFT ID with NFT data details
-        var previousAuctionsByMinter = auctionOwnersAndNFTHashMap.get(minter);
-        switch(previousAuctionsByMinter) {
-            case(?previousAuctionsByMinter) {
-                let previousAuctionsBuffer = Buffer.fromArray<Principal>(previousAuctionsByMinter);
-                previousAuctionsBuffer.add(nftID);
-                auctionOwnersAndNFTHashMap.put(minter, Buffer.toArray<Principal>(previousAuctionsBuffer));
-                return nftID;
+        assetIDWithAuctionDetailsHashMap.put(assetID, auctionDetails); // Map Auction Asset ID with Auction details
+        auctionAssetIDwithAssetDataHashMap.put(assetID, obtainedAsset); // Map Auction Asset ID with Asset data details
+        var minterAuctionInventory = auctionOwnersAndInventoryHashMap.get(minter);
+        // Check auction inventory of Minter
+        switch(minterAuctionInventory) {
+            case(?minterAuctionInventory) {
+                if(asset_type == "NFT") {
+                    let minterAuctionNFTs = minterAuctionInventory.nftAssets;
+                    let nftAuctionBuffer = Buffer.fromArray<Principal>(minterAuctionNFTs);
+                    nftAuctionBuffer.add(assetID);
+                    var newAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = Buffer.toArray<Principal>(nftAuctionBuffer);
+                        audioAssets:[Principal] = minterAuctionInventory.audioAssets;
+                        textAssets:[Principal] = minterAuctionInventory.textAssets;
+                        videoAssets:[Principal] = minterAuctionInventory.videoAssets;
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, newAuctionInventory);
+                }
+
+                else if(asset_type == "Audio") {
+                                        let minterAuctionAudios = minterAuctionInventory.audioAssets;
+                    let audioAuctionBuffer = Buffer.fromArray<Principal>(minterAuctionAudios);
+                    audioAuctionBuffer.add(assetID);
+                    var newAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = minterAuctionInventory.nftAssets;
+                        audioAssets:[Principal] = Buffer.toArray<Principal>(audioAuctionBuffer);
+                        textAssets:[Principal] = minterAuctionInventory.textAssets;
+                        videoAssets:[Principal] = minterAuctionInventory.videoAssets;
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, newAuctionInventory);
+                }
+
+                else if(asset_type == "Video") {
+                                        let minterAuctionVideos = minterAuctionInventory.videoAssets;
+                    let videosAuctionBuffer = Buffer.fromArray<Principal>(minterAuctionVideos);
+                    videosAuctionBuffer.add(assetID);
+                    var newAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = minterAuctionInventory.nftAssets;
+                        audioAssets:[Principal] = minterAuctionInventory.audioAssets;
+                        textAssets:[Principal] = minterAuctionInventory.textAssets;
+                        videoAssets:[Principal] = Buffer.toArray<Principal>(videosAuctionBuffer);
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, newAuctionInventory);
+                }
+
+                else if(asset_type == "Text") {
+                                        let minterAuctionTexts = minterAuctionInventory.textAssets;
+                    let textAuctionBuffer = Buffer.fromArray<Principal>(minterAuctionTexts);
+                    textAuctionBuffer.add(assetID);
+                    var newAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = minterAuctionInventory.nftAssets;
+                        audioAssets:[Principal] = minterAuctionInventory.audioAssets;
+                        textAssets:[Principal] = Buffer.toArray<Principal>(textAuctionBuffer);
+                        videoAssets:[Principal] = minterAuctionInventory.videoAssets;
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, newAuctionInventory);
+                } else {
+
+                };
+
+                return assetID;
             }; case(null) {
-                let firstAuctionByMinter = [nftID];
-                auctionOwnersAndNFTHashMap.put(minter, firstAuctionByMinter);
-                return nftID;
+                if(asset_type == "NFT") {
+                    let firstAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = [assetID];
+                        audioAssets:[Principal] = [];
+                        textAssets:[Principal] = [];
+                        videoAssets:[Principal] = [];
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, firstAuctionInventory);
+                
+
+                } else if(asset_type == "Audio") {
+
+                    let firstAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = [];
+                        audioAssets:[Principal] = [assetID];
+                        textAssets:[Principal] = [];
+                        videoAssets:[Principal] = [];
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, firstAuctionInventory);
+                
+
+                } else if(asset_type == "Video") {
+                        let firstAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = [];
+                        audioAssets:[Principal] = [];
+                        textAssets:[Principal] = [];
+                        videoAssets:[Principal] = [assetID];
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, firstAuctionInventory);
+                
+
+                } else if(asset_type == "Text") {
+                            let firstAuctionInventory: OwnerInventory = {
+                        nftAssets:[Principal] = [];
+                        audioAssets:[Principal] = [];
+                        textAssets:[Principal] = [assetID];
+                        videoAssets:[Principal] = [];
+                    };
+                    auctionOwnersAndInventoryHashMap.put(minter, firstAuctionInventory);
+                
+                } else {
+
+                };
+                return assetID;
+
             }
         }
       }  
     };
 
+    public query func getAllNFTs(): async[(Principal, [Principal])] {
+        let allMinters = ownerIDAndInventoryHashMap.keys();
+        let ownersAndNFTBuffers = Buffer.Buffer<(Principal, [Principal])>(1);
+        for(minter in allMinters) {
+            let nftList = ownerIDAndInventoryHashMap.get(minter);
+            switch(nftList) {
+                case(?nftList) {
+                    ownersAndNFTBuffers.add((minter, nftList.nftAssets ));
+                };
+                case(null) {
+                    ownersAndNFTBuffers.add((minter, []));
+                }
+            }
+
+        };
+        return Buffer.toArray<(Principal, [Principal])>(ownersAndNFTBuffers);
+    };
+
+    /*
     public query func fetchAllAuctionDetails(): async [AuctionData] {
         let allAuctionDetails = Iter.toArray(nftWithAuctionDetailsHashMap.vals());
         return allAuctionDetails;
@@ -158,7 +413,7 @@ actor naft_icp {
         return allAuctionAssetPrincipals;
     };
 
-    public query func getAllNFTs():async [(Principal, NFTData)] {
+    public query func getAllNFTs():async [(Principal, AssetData)] {
         return Iter.toArray(nftWithIDHashMap.entries());
     };
 
@@ -236,6 +491,8 @@ actor naft_icp {
             }
         };
     };
+
+    */
 
     public func registerTransaction(callerID: Principal, amount: Int, time:Text): async Text {
         let transactionData: BiddingData = {

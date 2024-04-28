@@ -560,12 +560,159 @@ actor naft_icp {
         };
     };
 
-    public query func getOwner(nftID: Principal): async Text {
+    public query func getNFTOwner(nftID: Principal): async Text {
         for (key in ownerIDAndInventoryHashMap.keys()) {
             let ownerNFTs = ownerIDAndInventoryHashMap.get(key);
             switch(ownerNFTs) {
                 case(?ownerNFTs) {
                     let isFound = Array.find<Principal>(ownerNFTs.nftAssets, func(x:Principal) {x == nftID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getTextOwner(textID: Principal): async Text {
+        for (key in ownerIDAndInventoryHashMap.keys()) {
+            let ownerTexts = ownerIDAndInventoryHashMap.get(key);
+            switch(ownerTexts) {
+                case(?ownerTexts) {
+                    let isFound = Array.find<Principal>(ownerTexts.textAssets, func(x:Principal) {x == textID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getAudioOwner(audioID: Principal): async Text {
+        for (key in ownerIDAndInventoryHashMap.keys()) {
+            let ownerAudios = ownerIDAndInventoryHashMap.get(key);
+            switch(ownerAudios) {
+                case(?ownerAudios) {
+                    let isFound = Array.find<Principal>(ownerAudios.audioAssets, func(x:Principal) {x == audioID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getVideoOwner(videoID: Principal): async Text {
+        for (key in ownerIDAndInventoryHashMap.keys()) {
+            let ownerVideos = ownerIDAndInventoryHashMap.get(key);
+            switch(ownerVideos) {
+                case(?ownerVideos) {
+                    let isFound = Array.find<Principal>(ownerVideos.videoAssets, func(x:Principal) {x == videoID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getAuctionConductorinNFT(nftID: Principal): async Text {
+        for (key in auctionOwnersAndInventoryHashMap.keys()) {
+            let ownerNFTs = auctionOwnersAndInventoryHashMap.get(key);
+            switch(ownerNFTs) {
+                case(?ownerNFTs) {
+                    let isFound = Array.find<Principal>(ownerNFTs.nftAssets, func(x:Principal) {x == nftID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getAuctionConductorinText(textID: Principal): async Text {
+        for (key in auctionOwnersAndInventoryHashMap.keys()) {
+            let ownerTexts = auctionOwnersAndInventoryHashMap.get(key);
+            switch(ownerTexts) {
+                case(?ownerTexts) {
+                    let isFound = Array.find<Principal>(ownerTexts.textAssets, func(x:Principal) {x == textID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getAuctionConductorinAudio(audioID: Principal): async Text {
+        for (key in auctionOwnersAndInventoryHashMap.keys()) {
+            let ownerAudios = auctionOwnersAndInventoryHashMap.get(key);
+            switch(ownerAudios) {
+                case(?ownerAudios) {
+                    let isFound = Array.find<Principal>(ownerAudios.audioAssets, func(x:Principal) {x == audioID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
+    public query func getAuctionConductorinVideos(videoID: Principal): async Text {
+        for (key in auctionOwnersAndInventoryHashMap.keys()) {
+            let ownerVideos = auctionOwnersAndInventoryHashMap.get(key);
+            switch(ownerVideos) {
+                case(?ownerVideos) {
+                    let isFound = Array.find<Principal>(ownerVideos.videoAssets, func(x:Principal) {x == videoID});
                     switch(isFound){
                         case(?isFound){
                             return Principal.toText(key);

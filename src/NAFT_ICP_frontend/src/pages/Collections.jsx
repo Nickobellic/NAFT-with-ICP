@@ -5,6 +5,7 @@
 
 import React, {useState, useEffect, useContext} from "react";
 import axios from "axios";
+import new_styles from "../../public/UserReg.module.css";
 import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_backend";
 import styles from '../../public/newProduct.module.css';
 import { locStore } from "./UserReg"; 
@@ -13,14 +14,32 @@ import dotenv from 'dotenv';
 import ColleCard from '../components/CollecCard';
 import { Principal } from "@dfinity/principal";
 import { Navigate, useNavigate } from "react-router-dom";
+import CollectionRender from "../components/CollectionsRender";
 
 const Collections = () => {
     const navigate = useNavigate();
     const [nftData, setNFTData] = useState([]);
-    const [nftIDs, setNFTIDs] = useState([]);
-    const [owners, setOwners] = useState([]);
+    const [data, setData] = useState({
+      nftData: [],
+      audioData: [],
+      videoData: [],
+      textData: []
+    });
+    const [IDs, setIDs] = useState({
+      nftIDs:[],
+      audioIDs:[],
+      videoIDs:[],
+      textIDs:[]
+    });
+    const [owners, setOwners] = useState({
+      nftOwners: [],
+      audioOwners: [],
+      videoOwners: [],
+      textOwners:[],
+    });
+    //const [nftIDs, setNFTIDs] = useState([]);
+    //const [owners, setOwners] = useState([]);
     const [authenticated, setAuthenticated] = useState();
-    const [imageList, setImageData] = useState([]);
     const [walletID, setWalletID] = useState('');
 
     //console.log(imageList);
@@ -43,27 +62,21 @@ const Collections = () => {
         //let nftData = nfts.map((nft) => nft[1]);
         //let ownerIDs = nfts.map((nft) => nft[0].toText());
         let nftList = [];
-
+        // Getting NFT ID from it
         nfts.forEach((nft) => {
           nft[1].map((nft) => nftList.push(nft.toText()));
         });
-        //setNFTData(nftData);
-        /*for(let nftID=0; nftID<ownerIDs.length; nftID++) {
-          let ownerWithNFTs = {};
-          ownerWithNFTs[ownerIDs[nftID]] = nftList[nftID];
-          allNFTs.push(ownerWithNFTs);
-        }*/
-        setNFTIDs(nftList);
+        setIDs({...IDs, nftIDs: nftList});
 
-
+        // Getting owners of the NFT LIst
         for(const nft of nftList) {
-          let owner = await naft_icp.getOwner(Principal.fromText(nft));
+          let owner = await naft_icp.getNFTOwner(Principal.fromText(nft));
           let singleNFTData = await naft_icp.getAssetData(Principal.fromText(nft));
           ownerList.push(owner);
           nftMetaData.push(singleNFTData);
         }
-        setOwners(ownerList);
-        setNFTData(nftMetaData);
+        setOwners({...owners, nftOwners: ownerList});
+        setData({...data, nftData:nftMetaData});
     }
 
 
@@ -150,28 +163,11 @@ const Collections = () => {
 
       <h1 style={{color: "white"}}>Your Collections</h1>
 
-      </div>  
-      <Grid container spacing={8} style={{color: "white"}}>
-      
-      { nftData.map((nft, index) => (
-        <Grid key={index} item xs={12} sm={6} md={4} lg={3} >
-          <ColleCard
-            imgSrc={nft.dataString}
-            nftID = {nftIDs[index]}
-            ownerID = {owners[index]}
-            title={nft.assetName}
-            description={nft.assetDesc}
-            price={parseInt(nft.assetPrice)}
-            onBuy={handleBuy}
-            left={parseInt(nft.assetToken)}
-          />
-        </Grid>
-      ))
-      }
-
-      </Grid>
-      {nftData.length == 0 && 
-        (<h2 style={{color: "hsl(47, 100%, 49%)"}}>No NFTs present in your Collections</h2>)}
+      </div>
+      <CollectionRender type={"NFT"} data={data.nftData} ownerList={owners.nftOwners} idList={IDs.nftIDs} buyFunction={handleBuy}/>  
+      <CollectionRender type={"Audio"} data={data.audioData} ownerList={owners.audioOwners} idList={IDs.audioIDs} buyFunction={handleBuy}/>
+      <CollectionRender type={"Text"} data={data.textData} ownerList={owners.textOwners} idList={IDs.textIDs} buyFunction={handleBuy}/>
+      <CollectionRender type={"Video"} data={data.videoData} ownerList={owners.videoOwners} idList={IDs.videoIDs} buyFunction={handleBuy}/>
       </div>
     </div>
 

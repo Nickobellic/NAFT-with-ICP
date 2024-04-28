@@ -12,13 +12,13 @@ import { Grid } from '@mui/material';
 import dotenv from 'dotenv';
 import AuctionCard from "../components/AuctionCard";
 import { Principal } from "@dfinity/principal";
+import AuctionRender from "../components/AuctionRender";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const AuctionPage = () => {
     const navigate = useNavigate();
     const [nftData, setNFTData] = useState([]);
     const [nftIDs, setNFTIDs] = useState([]);
-    const [owners, setOwners] = useState([]);
     const [authenticated, setAuthenticated] = useState();
     const [imageList, setImageData] = useState([]);
     const [walletID, setWalletID] = useState('');
@@ -35,36 +35,119 @@ const AuctionPage = () => {
         setWalletID(locStoreID);
     }
 
-    async function getAllAuctionDetails() {
-        let auctionAssetIDs = await naft_icp.fetchAllAuctionAssets();
-        let auctionDetails = await naft_icp.fetchAllAuctionDetails();
+    const [data, setData] = useState({
+      nftData: [],
+      audioData: [],
+      videoData: [],
+      textData: []
+    });
+    const [IDs, setIDs] = useState({
+      nftIDs:[],
+      audioIDs:[],
+      videoIDs:[],
+      textIDs:[]
+    });
+    const [owners, setOwners] = useState({
+      nftOwners: [],
+      audioOwners: [],
+      videoOwners: [],
+      textOwners:[],
+    });
+    //const [nftIDs, setNFTIDs] = useState([]);
+    //const [owners, setOwners] = useState([]);
 
-        console.log(auctionAssetIDs, auctionDetails);
+
+    //console.log(imageList);
+
+    // --------- ICP -------------
+
+    async function getWalletID() {
+        let locStoreID = await locStore.get("walletID");
+        let isAuthenticated = await locStore.get("authenticated");
+        //console.log(isAuthenticated);
+        setAuthenticated(isAuthenticated);
+        setWalletID(locStoreID);
     }
 
     async function getAllMintedNFTs() {
         await getWalletID();
         let ownerList = [];
-        let nfts = await naft_icp.getAllNFTs();
-        let nftData = nfts.map((nft) => nft[1]);
-        let nftIDs = nfts.map((nft) => nft[0].toText());
-        setNFTData(nftData);
-        setNFTIDs(nftIDs);
+        let nftMetaData = [];
+        let nfts = await naft_icp.getAllAuctionNFTs();
+        console.log(nfts);
+        //let nftData = nfts.map((nft) => nft[1]);
+        //let ownerIDs = nfts.map((nft) => nft[0].toText());
+        let nftList = [];
+        // Getting NFT ID from it
+        nfts.forEach((nft) => {
+          nftList.push(nft.toText());
+        });
 
-        for(const nft of nftIDs) {
-          let owner = await naft_icp.getOwner(Principal.fromText(nftIDs[0]));
+        //setIDs({...IDs, nftIDs: nftList});
+
+        // Getting owners of the NFT LIst
+        for(const nft of nftList) {
+          let owner = await naft_icp.getAuctionConductorinNFT(Principal.fromText(nft));
+          let singleNFTData = await naft_icp.getAuctionAssetData(Principal.fromText(nft));
           ownerList.push(owner);
+          nftMetaData.push(singleNFTData);
         }
+        //setOwners({...owners, nftOwners: ownerList});
+        //setData({...data, nftData:nftMetaData});
 
-        setOwners(ownerList);
-        console.log(owners);
-        //console.log(nftIDs);
+        console.log(nftMetaData);
+        // Text Section
+
+
+      let textOwnerList = [];
+      let textMetaData = [];
+      let texts = await naft_icp.getAllAuctionTexts();
+      //let nftData = nfts.map((nft) => nft[1]);
+      //let ownerIDs = nfts.map((nft) => nft[0].toText());
+      let textList = [];
+      // Getting NFT ID from it
+      texts.forEach((text) => {
+        textList.push(text.toText());
+      });
+
+      // Getting owners of the NFT LIst
+      for(const text of textList) {
+        let owner = await naft_icp.getAllAuctionTexts(Principal.fromText(text));
+        let singleTextData = await naft_icp.getAuctionAssetData(Principal.fromText(text));
+        textOwnerList.push(owner);
+        textMetaData.push(singleTextData);
+      }
+
+      let audioOwnerList = [];
+      let audioMetaData = [];
+      let audios = await naft_icp.getAllAuctionAudios();
+      //let nftData = nfts.map((nft) => nft[1]);
+      //let ownerIDs = nfts.map((nft) => nft[0].toText());
+      let audioList = [];
+      // Getting NFT ID from it
+      audios.forEach((audio) => {
+        audioList.push(audio.toText());
+      });
+      setIDs({...IDs, textIDs: textList, nftIDs: nftList, audioIDs: audioList});
+
+      // Getting owners of the NFT LIst
+      for(const audio of audioList) {
+        let owner = await naft_icp.getAllAuctionAudios(Principal.fromText(audio));
+        let singleAudioData = await naft_icp.getAuctionAssetData(Principal.fromText(audio));
+        audioOwnerList.push(owner);
+        audioMetaData.push(singleAudioData);
+      }
+      
+
+      setOwners({...owners, textOwners: textOwnerList, nftOwners: ownerList, audioOwners: audioList});
+      setData({...data, textData:textMetaData ,  nftData: nftMetaData, audioData: audioMetaData});
     }
-
 
     useEffect(() => {
         getAllMintedNFTs();
     }, []);
+
+    console.log(data, owners, IDs);
 
     async function handleBuy(team, nftID, ownerID, action) {
       let authStatus = await locStore.get("authenticated");
@@ -128,27 +211,12 @@ const AuctionPage = () => {
       <h1 style={{color: "white"}}>View all Auctions</h1>
 
       </div>  
-      <Grid container spacing={8} style={{color: "white"}}>
       
-      { nftData.map((nft, index) => (
-        <Grid key={index} item xs={12} sm={6} md={4} lg={3} >
-          <AuctionCard
-            imgSrc={nft.nftImageData}
-            nftID = {nftIDs[index]}
-            ownerID = {owners[index]}
-            title={nft.nftName}
-            description={nft.nftDesc}
-            price={parseInt(nft.nftPrice)}
-            onBuy={handleBuy}
-            left={parseInt(nft.nftToken)}
-          />
-        </Grid>
-      ))
-      }
+      <AuctionRender type={"NFT"} data={data.nftData} ownerList={owners.nftOwners} idList={IDs.nftIDs} buyFunction={handleBuy}/>  
+      <AuctionRender type={"Audio"} data={data.audioData} ownerList={owners.audioOwners} idList={IDs.audioIDs} buyFunction={handleBuy}/>
+      <AuctionRender type={"Text"} data={data.textData} ownerList={owners.textOwners} idList={IDs.textIDs} buyFunction={handleBuy}/>
+      <AuctionRender type={"Video"} data={data.videoData} ownerList={owners.videoOwners} idList={IDs.videoIDs} buyFunction={handleBuy}/>
 
-      </Grid>
-      {nftData.length == 0 && 
-        (<h2 style={{color: "hsl(47, 100%, 49%)"}}>No assets present for Auctions</h2>)}
       </div>
     </div>
 

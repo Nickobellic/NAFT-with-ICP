@@ -546,6 +546,27 @@ actor naft_icp {
         }
     };
 
+    public query func getAuctionAssetData(assetID: Principal):async AssetData {
+        let assetData = auctionAssetIDwithAssetDataHashMap.get(assetID);
+        switch(assetData) {
+            case(?assetData) {
+                return assetData;
+            };
+             case(null) {
+                let dummyAsset: AssetData = {
+                    assetName = "";
+                    assetDesc = "";
+                    assetPrice = 1;
+                    assetToken = 1;
+                    assetTags = "";
+                    assetType = "";
+                    dataString = "";
+                };
+                return dummyAsset;
+            }
+        }
+    };
+
     public query func getYourNFTs(princID: Principal): async [Principal] {
         let allNFTs = ownerIDAndInventoryHashMap.get(princID);
 

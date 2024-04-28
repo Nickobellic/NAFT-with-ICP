@@ -15,6 +15,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import {NAFT_ICP_backend as naft_icp} from "../../../declarations/NAFT_ICP_backend";
 import React from "react";
 import {Link} from "react-router-dom";
+import AuctionDetails from "./AuctionDetails";
 import AuctionPage from "../pages/AuctionPage";
 import Collections from "../pages/Collections";
 import MintAssets from "../pages/mint-forms/Register";
@@ -118,6 +119,7 @@ const Navbar = () => {
            <Route path="/digitize-assets" element={<Minter />} />
            <Route path="/mint/:mint_type" element={<MintAssets/>} />
            <Route path="/auctions" element={<AuctionPage />} />
+           <Route path="/auction/:auctID" element={<AuctionDetails />} />
          </Routes>
     </BrowserRouter>
   );

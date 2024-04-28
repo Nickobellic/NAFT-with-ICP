@@ -37,6 +37,10 @@
     margin-bottom: 10px; 
   } 
 
+  .detailsButtonSize {
+    width: 100px;
+  }
+
   .buttonRow {
     display: flex;
     justify-content: center;

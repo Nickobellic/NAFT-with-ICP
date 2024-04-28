@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import styles from '../../public/newProduct.module.css'; // Import CSS module for styling
 import { locStore } from '../pages/UserReg';
 import dotenv from 'dotenv';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 
 const AuctionCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
@@ -12,6 +13,8 @@ const AuctionCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, own
   const [auth, setAuth] = useState(false);
   const [authID, setAuthID] = useState("");
   const [seller,setSeller] = useState(false);
+
+  const navigate = useNavigate();
 
   async function checkOwnership() {
     let authUser = await locStore.get("walletID");
@@ -33,6 +36,11 @@ const AuctionCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, own
       checkOwnership();      
   });
 
+
+  function seeDetails() {
+    navigate(`/auction/${nftID}`);
+  }
+
   console.log(process.env.CANISTER_OWNER_PRINCIPAL);
 
   return (
@@ -52,11 +60,8 @@ const AuctionCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, own
         <h5>Starting Bid</h5>
         <p className={styles.cardPrice}>{price} <span className='heroTitleSpan'>ICP</span></p>
         </div>
-        <div className={styles.row}>
-        <p>{left} Tokens Offered </p>
-        </div>
          { (authID != process.env.CANISTER_OWNER_PRINCIPAL && auth == "true") && <div className={`${styles.buttonRow}`}>
-          <button disabled={auth == true ? true : false} className={`${styles.buttonSize} ${styles.buyButton}`} onClick={console.log("Hi")}>{action}</button>
+          <button disabled={auth == true ? true : false} className={`${styles.detailsButtonSize} ${styles.buyButton}`} onClick={seeDetails}>See Details</button>
         </div>}
         <div className={styles.nftIDBody}>
           <p className={styles.cardNFTLabel}>Conducted By</p>

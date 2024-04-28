@@ -22,6 +22,8 @@ const CollectionRender = ({data, ownerList, idList, buyFunction, type}) => {
           imgSrc={type == "NFT" ? nft.dataString : imageFor[type]}
           nftID = {idList[index]}
           ownerID = {ownerList[index]}
+          docType={type}
+          audioSrc={type != "NFT" && nft.dataString}
           title={nft.assetName}
           description={nft.assetDesc}
           price={parseInt(nft.assetPrice)}

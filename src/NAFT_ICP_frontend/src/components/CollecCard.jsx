@@ -3,14 +3,16 @@ import React, {useState, useEffect} from 'react';
 import styles from '../../public/newProduct.module.css'; // Import CSS module for styling
 import { locStore } from '../pages/UserReg';
 import dotenv from 'dotenv';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay, faPause, faDownload } from '@fortawesome/free-solid-svg-icons';
 
-
-const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
+const ColleCard = ({ type ,imgSrc, docType, audioSrc, title,description, price, onBuy ,left, nftID, ownerID }) => {
   const [full, setFull] = useState(false);
   const [action, setAction] = useState();
   const [ownersID, setOwnerID] = useState(ownerID);
   const [auth, setAuth] = useState(false);
   const [authID, setAuthID] = useState("");
+  const [play, setPlay] = useState(false);
   const [seller,setSeller] = useState(false);
 
   async function checkOwnership() {
@@ -31,6 +33,30 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
       checkOwnership();      
   });
 
+  function playSound() {
+    var sound = new Audio(audioSrc);
+    play ? sound.pause() : sound.play();
+    sound.onpause = () => setPlay(false);
+    sound.onplay = () => setPlay(true);
+  }
+
+  function downloadImage() {
+    console.log(imgSrc);
+    if(docType != "NFT") {
+    //window.open(audioSrc);
+    const link = document.createElement("a");
+    link.href = audioSrc;
+    link.download = title;
+    link.click();
+    } else {
+      //window.open(imgSrc);
+      const link = document.createElement("a");
+      link.href = imgSrc;
+      link.download = title;
+      link.click();
+    }
+}
+
   // console.log(process.env.CANISTER_OWNER_PRINCIPAL);
 
   return (
@@ -40,6 +66,12 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
 
       </div>
       <div className={styles.cardBody}>
+        <div style={{display: "flex", flexDirection: "row", marginLeft: "30%"}}>
+        { docType == "Audio" && <button className={` ${styles.playButton}`} onClick={playSound} > <FontAwesomeIcon size='xl' icon={play ? faPause : faPlay} /></button> }
+       {<button className={` ${styles.playButton}`} onClick={downloadImage}> <FontAwesomeIcon icon={faDownload} /> </button>}
+        </div>
+
+        
         <h4 className={styles.cardTitle}>{title}</h4>
         <div className={styles.nftIDBody}>
           <p className={styles.cardNFTLabel}>NFT ID</p>

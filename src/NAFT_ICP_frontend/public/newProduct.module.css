@@ -42,6 +42,14 @@
     justify-content: center;
   }
 
+  .playButton {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+  }
   .buttonSize {
     width: 80px;
     height: 30px;

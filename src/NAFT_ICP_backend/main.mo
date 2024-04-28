@@ -402,6 +402,129 @@ actor naft_icp {
         return Buffer.toArray<(Principal, [Principal])>(ownersAndNFTBuffers);
     };
 
+    public query func getAllTexts(): async[(Principal, [Principal])] {
+        let allMinters = ownerIDAndInventoryHashMap.keys();
+        let ownersAndTextBuffers = Buffer.Buffer<(Principal, [Principal])>(1);
+        for(minter in allMinters) {
+            let textList = ownerIDAndInventoryHashMap.get(minter);
+            switch(textList) {
+                case(?textList) {
+                    ownersAndTextBuffers.add((minter, textList.textAssets ));
+                };
+                case(null) {
+                    ownersAndTextBuffers.add((minter, []));
+                }
+            }
+
+        };
+        return Buffer.toArray<(Principal, [Principal])>(ownersAndTextBuffers);
+    };
+
+    public query func getAllAudios(): async[(Principal, [Principal])] {
+        let allMinters = ownerIDAndInventoryHashMap.keys();
+        let ownersAndAudioBuffers = Buffer.Buffer<(Principal, [Principal])>(1);
+        for(minter in allMinters) {
+            let audioList = ownerIDAndInventoryHashMap.get(minter);
+            switch(audioList) {
+                case(?audioList) {
+                    ownersAndAudioBuffers.add((minter, audioList.audioAssets ));
+                };
+                case(null) {
+                    ownersAndAudioBuffers.add((minter, []));
+                }
+            }
+
+        };
+        return Buffer.toArray<(Principal, [Principal])>(ownersAndAudioBuffers);
+    };
+
+        public query func getAllVideos(): async[(Principal, [Principal])] {
+        let allMinters = ownerIDAndInventoryHashMap.keys();
+        let ownersAndVideoBuffers = Buffer.Buffer<(Principal, [Principal])>(1);
+        for(minter in allMinters) {
+            let videoList = ownerIDAndInventoryHashMap.get(minter);
+            switch(videoList) {
+                case(?videoList) {
+                    ownersAndVideoBuffers.add((minter, videoList.videoAssets ));
+                };
+                case(null) {
+                    ownersAndVideoBuffers.add((minter, []));
+                }
+            }
+
+        };
+        return Buffer.toArray<(Principal, [Principal])>(ownersAndVideoBuffers);
+    };
+
+
+    public query func getAllAuctionNFTs(): async [Principal] {
+        let allAuctionMinters = auctionOwnersAndInventoryHashMap.keys();
+        let auctionBuffers = Buffer.Buffer<Principal>(1);
+        for(minter in allAuctionMinters) {
+            let auctionNFTList = auctionOwnersAndInventoryHashMap.get(minter);
+            switch(auctionNFTList) {
+                case(?auctionNFTList) {
+                    for(auctionNFT in auctionNFTList.nftAssets.vals()) {
+                    auctionBuffers.add(auctionNFT);
+                    }
+                }; case(null) {
+                }
+            }
+        };
+        return Buffer.toArray<Principal>(auctionBuffers);
+    };
+
+    public query func getAllAuctionTexts(): async [Principal] {
+        let allAuctionMinters = auctionOwnersAndInventoryHashMap.keys();
+        let auctionBuffers = Buffer.Buffer<Principal>(1);
+        for(minter in allAuctionMinters) {
+            let auctionNFTList = auctionOwnersAndInventoryHashMap.get(minter);
+            switch(auctionNFTList) {
+                case(?auctionNFTList) {
+                    for(auctionNFT in auctionNFTList.textAssets.vals()) {
+                    auctionBuffers.add(auctionNFT);
+                    }
+                }; case(null) {
+                }
+            }
+        };
+        return Buffer.toArray<Principal>(auctionBuffers);
+    };
+
+    public query func getAllAuctionAudios(): async [Principal] {
+        let allAuctionMinters = auctionOwnersAndInventoryHashMap.keys();
+        let auctionBuffers = Buffer.Buffer<Principal>(1);
+        for(minter in allAuctionMinters) {
+            let auctionNFTList = auctionOwnersAndInventoryHashMap.get(minter);
+            switch(auctionNFTList) {
+                case(?auctionNFTList) {
+                    for(auctionNFT in auctionNFTList.audioAssets.vals()) {
+                    auctionBuffers.add(auctionNFT);
+                    }
+                }; case(null) {
+                }
+            }
+        };
+        return Buffer.toArray<Principal>(auctionBuffers);
+    };
+
+        public query func getAllAuctionVideos(): async [Principal] {
+        let allAuctionMinters = auctionOwnersAndInventoryHashMap.keys();
+        let auctionBuffers = Buffer.Buffer<Principal>(1);
+        for(minter in allAuctionMinters) {
+            let auctionNFTList = auctionOwnersAndInventoryHashMap.get(minter);
+            switch(auctionNFTList) {
+                case(?auctionNFTList) {
+                    for(auctionNFT in auctionNFTList.videoAssets.vals()) {
+                    auctionBuffers.add(auctionNFT);
+                    }
+                }; case(null) {
+                }
+            }
+        };
+        return Buffer.toArray<Principal>(auctionBuffers);
+    };
+
     public query func getAssetData(assetID: Principal):async AssetData {
         let assetData = assetIDWithAssetDataHashMap.get(assetID);
         switch(assetData) {

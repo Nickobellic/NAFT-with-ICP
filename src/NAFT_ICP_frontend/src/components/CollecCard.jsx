@@ -74,7 +74,9 @@ const ColleCard = ({ type ,imgSrc, docType, audioSrc, title,description, price, 
         
         <h4 className={styles.cardTitle}>{title}</h4>
         <div className={styles.nftIDBody}>
-          <p className={styles.cardNFTLabel}>NFT ID</p>
+          <p className={styles.cardNFTLabel} style={{
+            color: "white"
+          }}>NFT ID</p>
           <h6 className={`${styles.cardTitle} ${styles.nftID}`}>{nftID}</h6>
         </div>
 

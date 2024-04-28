@@ -9,12 +9,23 @@ import { Principal } from "@dfinity/principal";
 
 const AuctionDetails = () => {
     const {auctID} = useParams();
+    const [auth, setAuth] = useState("false");
+    const [authID, setAuthID] = useState("");
+    const [ownerID, setOwnerID] = useState("");
     const [auctionDetail, setDetails] = useState({});
 
     async function getAuctionDetails() {
+        await getAuthResult();
         const details = await naft_icp.getAuctionAssetData(Principal.fromText(auctID));
         setDetails(details);
         console.log(details);
+    }
+
+    async function getAuthResult() {
+      const authID = await locStore.get("walletID");
+      setAuthID(authID);
+      const authStatus = await locStore.get("authenticated"); 
+      setAuth(authStatus);
     }
 
     useEffect(() => {
@@ -23,9 +34,9 @@ const AuctionDetails = () => {
 
     console.log(auctionDetail);
     return (
-        <div className={styles.card}>
-        <div className={styles.cardBanner}>
-        <img src={auctionDetail.dataString || "/images/explore-product-1.jpg"} alt={title} className={styles.cardImg} />
+        <div className={`${styles.card} ${styles.auctionDetails}`}>
+        <div className={styles.auctionCardBanner}>
+        <img src={auctionDetail.dataString || "/images/explore-product-1.jpg"} alt={auctionDetail.assetName} className={styles.auctioncardImg} />
   
         </div>
         <div className={styles.cardBody}>
@@ -35,16 +46,27 @@ const AuctionDetails = () => {
             <h6 className={`${styles.cardTitle} ${styles.nftID}`}>{auctID}</h6>
           </div>
   
-          <div className={styles.row}>
-          <h5>Starting Bid</h5>
-          <p className={styles.cardPrice}>{price} <span className='heroTitleSpan'>ICP</span></p>
+          <div className={styles.auctionRow}>
+          <h5 style={{color: "white", margin: "20px"}}>Starting Bid</h5>
+          <p className={styles.cardPrice}>{parseInt(auctionDetail.assetPrice)} <span className='heroTitleSpan'>ICP</span></p>
           </div>
+
+          <div className={styles.auctionRow}>
+          <h5 style={{color: "white",margin: "20px", marginLeft: "70px"}}>{auctionDetail.assetType} Tags</h5>
+          <p className={styles.cardPrice}>{auctionDetail.assetTags}</p>
+          </div>
+
+          <div className={styles.auctionRow}>
+          <h5 style={{color: "white",margin: "20px", marginLeft: "70px"}}>{auctionDetail.assetType} Description</h5>
+          <p className={styles.cardPrice}>{auctionDetail.assetDesc}</p>
+          </div>
+
            { (authID != process.env.CANISTER_OWNER_PRINCIPAL && auth == "true") && <div className={`${styles.buttonRow}`}>
-            <button disabled={auth == true ? true : false} className={`${styles.detailsButtonSize} ${styles.buyButton}`} onClick={seeDetails}>Bid</button>
+            <button disabled={auth == "true" ? true : false} className={`${styles.detailsButtonSize} ${styles.buyButton}`} onClick={console.log("Hi")}>Bid</button>
           </div>}
           <div className={styles.nftIDBody}>
             <p className={styles.cardNFTLabel}>Conducted By</p>
-            <h6 style={{color: "red"}} className={`${styles.cardTitle} ${styles.nftID}`}>{ownerID}<a hidden={!full} onClick={() => setFull(true)}>...</a></h6>
+            <h6 style={{color: "red"}} className={`${styles.cardTitle} ${styles.nftID}`}>{ownerID}</h6>
           </div>
           </div>
       </div>

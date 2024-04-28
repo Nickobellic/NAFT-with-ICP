@@ -11,6 +11,13 @@
       border-radius: 8px;
       transition: transform 0.3s ease; 
     }
+
+  .auctionDetails {
+    margin-top: 80px;
+    width: 50%;
+    margin-left: 25%;
+    margin-right: 25%;
+  }
   .card:hover{
     transform: scale(1.04); 
   }
@@ -26,6 +33,22 @@
     height: 100%;
     object-fit: cover;
     }
+    .auctionCardBanner {
+      position: relative;
+      height: 270px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    .auctioncardImg {
+      margin-top: 25px;
+      margin-left: 25%;
+      margin-right: 25%;
+      padding-bottom: 100px;
+      width: 50%;
+      object-fit: cover;
+      }
     
   .cardBody {
       padding: 10px;
@@ -59,6 +82,13 @@
     height: 30px;
     font-size: 18px;
   }
+  .auctionRow {
+    display: flex;
+    font-size: 35px;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
   .row{
     display: flex;
     justify-content: space-between;
@@ -80,11 +110,13 @@
     
     .cardNFTLabel {
       align-self: center;
+      color: white;
       font-weight: bold;
       font-size: 20px;
     }
   .cardPrice {
       margin: 5px 0;
+      color: white;
     }
     
   .buyButton {

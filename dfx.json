@@ -50,5 +50,9 @@
     }
   },
   "output_env_file": ".env",
-  "version": 1
+  "version": 1,
+  "replica_settings": {
+    "ipc_max_message_size": 67108864,
+    "max_message_size": 104857600
+  }
 }

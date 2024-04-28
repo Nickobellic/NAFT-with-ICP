@@ -18,7 +18,6 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
     let authStatus = await locStore.get("authenticated");
     setAuth(authStatus);
     setAuthID(authUser);
-    console.log(authUser, ownerID);
     if(authUser === ownerID) {
       setSeller(true);
       setAction("Sell");
@@ -32,7 +31,7 @@ const ColleCard = ({ imgSrc, title,description, price, onBuy ,left, nftID, owner
       checkOwnership();      
   });
 
-  console.log(process.env.CANISTER_OWNER_PRINCIPAL);
+  // console.log(process.env.CANISTER_OWNER_PRINCIPAL);
 
   return (
     <div className={styles.card}>

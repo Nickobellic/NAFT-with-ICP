@@ -66,7 +66,7 @@ const Collections = () => {
         nfts.forEach((nft) => {
           nft[1].map((nft) => nftList.push(nft.toText()));
         });
-        setIDs({...IDs, nftIDs: nftList});
+        //setIDs({...IDs, nftIDs: nftList});
 
         // Getting owners of the NFT LIst
         for(const nft of nftList) {
@@ -75,8 +75,79 @@ const Collections = () => {
           ownerList.push(owner);
           nftMetaData.push(singleNFTData);
         }
-        setOwners({...owners, nftOwners: ownerList});
-        setData({...data, nftData:nftMetaData});
+        //setOwners({...owners, nftOwners: ownerList});
+        //setData({...data, nftData:nftMetaData});
+
+        console.log(nftMetaData);
+        // Text Section
+
+
+      let textOwnerList = [];
+      let textMetaData = [];
+      let texts = await naft_icp.getAllTexts();
+      //let nftData = nfts.map((nft) => nft[1]);
+      //let ownerIDs = nfts.map((nft) => nft[0].toText());
+      let textList = [];
+      // Getting NFT ID from it
+      texts.forEach((text) => {
+        text[1].map((text) => textList.push(text.toText()));
+      });
+
+      // Getting owners of the NFT LIst
+      for(const text of textList) {
+        let owner = await naft_icp.getTextOwner(Principal.fromText(text));
+        let singleTextData = await naft_icp.getAssetData(Principal.fromText(text));
+        textOwnerList.push(owner);
+        textMetaData.push(singleTextData);
+      }
+
+      let audioOwnerList = [];
+      let audioMetaData = [];
+      let audios = await naft_icp.getAllAudios();
+      //let nftData = nfts.map((nft) => nft[1]);
+      //let ownerIDs = nfts.map((nft) => nft[0].toText());
+      let audioList = [];
+      // Getting NFT ID from it
+      audios.forEach((audio) => {
+        audio[1].map((audio) => audioList.push(audio.toText()));
+      });
+      setIDs({...IDs, textIDs: textList, nftIDs: nftList, audioIDs: audioList});
+
+      // Getting owners of the NFT LIst
+      for(const audio of audioList) {
+        let owner = await naft_icp.getAudioOwner(Principal.fromText(audio));
+        let singleAudioData = await naft_icp.getAssetData(Principal.fromText(audio));
+        audioOwnerList.push(owner);
+        audioMetaData.push(singleAudioData);
+      }
+      
+
+      setOwners({...owners, textOwners: textOwnerList, nftOwners: ownerList, audioOwners: audioList});
+      setData({...data, textData:textMetaData ,  nftData: nftMetaData, audioData: audioMetaData});
+    }
+
+    async function getAllMintedTexts() {
+      let textOwnerList = [];
+      let textMetaData = [];
+      let texts = await naft_icp.getAllTexts();
+      //let nftData = nfts.map((nft) => nft[1]);
+      //let ownerIDs = nfts.map((nft) => nft[0].toText());
+      let textList = [];
+      // Getting NFT ID from it
+      texts.forEach((text) => {
+        text[1].map((text) => textList.push(text.toText()));
+      });
+      setIDs({...IDs, textIDs: textList, nftIDs: nftList});
+
+      // Getting owners of the NFT LIst
+      for(const text of textList) {
+        let owner = await naft_icp.getTextOwner(Principal.fromText(text));
+        let singleTextData = await naft_icp.getAssetData(Principal.fromText(text));
+        textOwnerList.push(owner);
+        textMetaData.push(singleTextData);
+      }
+      setOwners({...owners, textOwners: textOwnerList, });
+      setData({...data, textData:textMetaData,});
     }
 
 
@@ -85,7 +156,7 @@ const Collections = () => {
         getAllMintedNFTs();
     }, []);
 
-
+    console.log(data, owners, IDs);
 
     // ----------- MONGO DB -----------
     async function execApi() {

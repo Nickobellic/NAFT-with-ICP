@@ -5,6 +5,7 @@ import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_bac
 import styles from '../../public/newProduct.module.css';
 import { Grid } from '@mui/material';
 import dotenv from 'dotenv';
+import imageFor from "../utils/imageSelect";
 import ColleCard from '../components/CollecCard';
 import { Principal } from "@dfinity/principal";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -18,7 +19,7 @@ const CollectionRender = ({data, ownerList, idList, buyFunction, type}) => {
     { data.map((nft, index) => (
       <Grid key={index} item xs={12} sm={6} md={4} lg={3} >
         <ColleCard
-          imgSrc={nft.dataString}
+          imgSrc={type == "NFT" ? nft.dataString : imageFor[type]}
           nftID = {idList[index]}
           ownerID = {ownerList[index]}
           title={nft.assetName}

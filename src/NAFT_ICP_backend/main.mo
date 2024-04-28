@@ -402,6 +402,62 @@ actor naft_icp {
         return Buffer.toArray<(Principal, [Principal])>(ownersAndNFTBuffers);
     };
 
+    public query func getAssetData(assetID: Principal):async AssetData {
+        let assetData = assetIDWithAssetDataHashMap.get(assetID);
+        switch(assetData) {
+            case(?assetData) {
+                return assetData;
+            };
+             case(null) {
+                let dummyAsset: AssetData = {
+                    assetName = "";
+                    assetDesc = "";
+                    assetPrice = 1;
+                    assetToken = 1;
+                    assetTags = "";
+                    assetType = "";
+                    dataString = "";
+                };
+                return dummyAsset;
+            }
+        }
+    };
+
+    public query func getYourNFTs(princID: Principal): async [Principal] {
+        let allNFTs = ownerIDAndInventoryHashMap.get(princID);
+
+        switch(allNFTs) {
+            case(?allNFTs) {
+                return allNFTs.nftAssets;
+            };
+
+            case(null) {
+                return [];
+            }
+        };
+    };
+
+    public query func getOwner(nftID: Principal): async Text {
+        for (key in ownerIDAndInventoryHashMap.keys()) {
+            let ownerNFTs = ownerIDAndInventoryHashMap.get(key);
+            switch(ownerNFTs) {
+                case(?ownerNFTs) {
+                    let isFound = Array.find<Principal>(ownerNFTs.nftAssets, func(x:Principal) {x == nftID});
+                    switch(isFound){
+                        case(?isFound){
+                            return Principal.toText(key);
+                        };
+                        case(null) {
+                            return "";
+                        }
+                    }
+                };
+                case(null) {};
+            };
+        };
+        return "";
+    };
+
     /*
     public query func fetchAllAuctionDetails(): async [AuctionData] {
         let allAuctionDetails = Iter.toArray(nftWithAuctionDetailsHashMap.vals());

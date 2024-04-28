@@ -23,7 +23,7 @@ const Collections = () => {
     const [imageList, setImageData] = useState([]);
     const [walletID, setWalletID] = useState('');
 
-    console.log(imageList);
+    //console.log(imageList);
 
     // --------- ICP -------------
 
@@ -38,39 +38,41 @@ const Collections = () => {
     async function getAllMintedNFTs() {
         await getWalletID();
         let ownerList = [];
-        let allNFTs = [];
+        let nftMetaData = [];
         let nfts = await naft_icp.getAllNFTs();
         //let nftData = nfts.map((nft) => nft[1]);
-        let ownerIDs = nfts.map((nft) => nft[0].toText());
+        //let ownerIDs = nfts.map((nft) => nft[0].toText());
         let nftList = [];
 
         nfts.forEach((nft) => {
-          nftList.push(nft[1].map((nft) => nft.toText()));
+          nft[1].map((nft) => nftList.push(nft.toText()));
         });
         //setNFTData(nftData);
-        for(let nftID=0; nftID<ownerIDs.length; nftID++) {
+        /*for(let nftID=0; nftID<ownerIDs.length; nftID++) {
           let ownerWithNFTs = {};
           ownerWithNFTs[ownerIDs[nftID]] = nftList[nftID];
           allNFTs.push(ownerWithNFTs);
-        }
+        }*/
+        setNFTIDs(nftList);
 
-        console.log(allNFTs);
-        setNFTIDs(ownerIDs);
 
-        for(const nft of nftIDs) {
-          let owner = await naft_icp.getOwner(Principal.fromText(nftIDs[0]));
+        for(const nft of nftList) {
+          let owner = await naft_icp.getOwner(Principal.fromText(nft));
+          let singleNFTData = await naft_icp.getAssetData(Principal.fromText(nft));
           ownerList.push(owner);
+          nftMetaData.push(singleNFTData);
         }
-
         setOwners(ownerList);
-        console.log(owners);
-        //console.log(nftIDs);
+        setNFTData(nftMetaData);
     }
+
 
 
     useEffect(() => {
         getAllMintedNFTs();
     }, []);
+
+
 
     // ----------- MONGO DB -----------
     async function execApi() {
@@ -154,14 +156,14 @@ const Collections = () => {
       { nftData.map((nft, index) => (
         <Grid key={index} item xs={12} sm={6} md={4} lg={3} >
           <ColleCard
-            imgSrc={nft.nftImageData}
+            imgSrc={nft.dataString}
             nftID = {nftIDs[index]}
             ownerID = {owners[index]}
-            title={nft.nftName}
-            description={nft.nftDesc}
-            price={parseInt(nft.nftPrice)}
+            title={nft.assetName}
+            description={nft.assetDesc}
+            price={parseInt(nft.assetPrice)}
             onBuy={handleBuy}
-            left={parseInt(nft.nftToken)}
+            left={parseInt(nft.assetToken)}
           />
         </Grid>
       ))

@@ -93,6 +93,8 @@ const MintAssets = () => {
 
     }
 
+    console.log(walletID);
+
     // Function to convert file into Data URL
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -206,8 +208,11 @@ const MintAssets = () => {
                 <div style={{marginTop: "30px"}}>
                     <h2 style={{color: "white", display: "flex", justifyContent: "flex-start", marginLeft: "15%"}}>Upload {mint_type} Document</h2>
                     <div className={styles.actions}>
-                    <input onChange={handleFileChange} accept={acceptExtensions[mint_type]}
- name="nftData"  type="file" placeholder="Search" className={styles.feild} style={{width: "70%", marginLeft: "15%"}} required/>
+                        <button className={styles.signupButton} style={{ marginTop: "50px", height: "50px", width: "15%", marginLeft: "45%", marginRight: "45%" }}>
+                        <input onChange={handleFileChange} accept={acceptExtensions[mint_type]}
+ name="nftData"  type="file" placeholder="Search" className={styles.feild} style={{opacity: "0",width: "100%", height: "100%", marginLeft: "5%"}} required/>
+                        <span style={{position: "relative", bottom: "20px"}}> { registerData.data.length==0 ? "Upload" : "Uploaded"}</span>
+                        </button>
                     </div>
                 </div>
 

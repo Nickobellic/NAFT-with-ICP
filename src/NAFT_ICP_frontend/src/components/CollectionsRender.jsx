@@ -5,13 +5,50 @@ import { NAFT_ICP_backend as naft_icp } from "../../../declarations/NAFT_ICP_bac
 import styles from '../../public/newProduct.module.css';
 import { Grid } from '@mui/material';
 import dotenv from 'dotenv';
+import { locStore } from "../pages/UserReg";
 import imageFor from "../utils/imageSelect";
 import ColleCard from '../components/CollecCard';
 import { Principal } from "@dfinity/principal";
 import { Navigate, useNavigate } from "react-router-dom";
 
 
+
 const CollectionRender = ({data, ownerList, idList, buyFunction, type}) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState("");
+  async function handleBuy(team, nftID, ownerID, action) {
+    let authStatus = await locStore.get("authenticated");
+    let browser = await locStore.get("walletID");
+    if(authStatus === "true") {
+      console.log("Transaction Started");
+      console.log(process.env.CANISTER_OWNER_PRINCIPAL);
+      if(action == "Buy") {
+        let nftPrincipal = Principal.fromText(nftID);
+        let fromAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
+        let toAccount = Principal.fromText(browser);
+        const transferStatus = await naft_icp.transferAsset(nftPrincipal, fromAccount, toAccount, type);
+        console.log(transferStatus);
+      } else if(action == "Sell") {
+        let nftPrincipal = Principal.fromText(nftID);
+        let fromAccount = Principal.fromText(browser);
+        let toAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
+        const transferStatus = await naft_icp.transferAsset(nftPrincipal, fromAccount, toAccount, type);
+        console.log(transferStatus);
+      }
+      console.log("Transaction Ended");
+      window.location.reload();
+
+    } else {
+      await handleAuth();
+    }
+  }
+  
+
+  async function handleAuth() {
+    console.log("redirecting");
+    navigate("/new-user");
+  }
+
     return (<div>
         <h1 className={new_styles.user_title} style={{textAlign: "center", marginTop: "50px"}}>{type}s</h1>
     <Grid container spacing={8} style={{color: "white"}}>
@@ -27,7 +64,7 @@ const CollectionRender = ({data, ownerList, idList, buyFunction, type}) => {
           title={nft.assetName}
           description={nft.assetDesc}
           price={parseInt(nft.assetPrice)}
-          onBuy={buyFunction}
+          onBuy={handleBuy}
           left={parseInt(nft.assetToken)}
         />
       </Grid>

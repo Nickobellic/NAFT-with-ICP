@@ -749,6 +749,208 @@ actor naft_icp {
         return "";
     };
 
+    public func transferAsset(nftID: Principal,from_principal: Principal, to_principal: Principal, asset_type: Text): async Text {
+        let ownedAssets = ownerIDAndInventoryHashMap.get(from_principal);
+        switch(ownedAssets) {
+            case(?ownedAssets) {
+                if(asset_type == "NFT") {
+                    let found = Array.find<Principal>(ownedAssets.nftAssets, func(x:Principal) {x == nftID});
+                switch(found) {
+                    case(?found) {
+                        let newNFTList = Array.filter<Principal>(ownedAssets.nftAssets, func(x:Principal) {x != nftID}); // Removing that NFT from Owned Account
+                        let modifiedAssets: OwnerInventory = {
+                            nftAssets = newNFTList;
+                            audioAssets = ownedAssets.audioAssets;
+                            videoAssets = ownedAssets.videoAssets;
+                            textAssets = ownedAssets.textAssets;
+                        };
+                        
+                        ownerIDAndInventoryHashMap.put(from_principal, modifiedAssets); // Modified NFT List by owned account
+
+                        let newOwnerAssets = ownerIDAndInventoryHashMap.get(to_principal);
+                        switch(newOwnerAssets) { // Switch case for Empty NFT Array and non empty NFT Array for To_account
+                            case(?newOwnerAssets) {
+                                let newOwnerNFTBuffer = Buffer.fromArray<Principal>(newOwnerAssets.nftAssets); // Converting into buffer
+                                newOwnerNFTBuffer.add(nftID); // Adding NFT ID
+                                let modifiedNewAssets: OwnerInventory = {
+                            nftAssets= Buffer.toArray<Principal>(newOwnerNFTBuffer);
+                            audioAssets = ownedAssets.audioAssets;
+                            videoAssets =  ownedAssets.videoAssets;
+                            textAssets = ownedAssets.textAssets;
+                        };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedNewAssets); // Converting back into array to add it to hashmap
+                                return "NFT Transferred Successfully";
+                            };
+                            case(null) {
+                                let firstNFTForNewOwner = [nftID]; // Creating a new NFT array
+                                let modifiedFirstAsset: OwnerInventory = {
+                                    nftAssets = firstNFTForNewOwner;
+                                    audioAssets = [];
+                                    videoAssets = [];
+                                    textAssets =[];
+                                };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedFirstAsset); // Adding it to hashmap
+                                return "First NFT asset bought successfully";
+                            };
+                        }
+                    };
+                    case(null) { // When that NFT is not found
+                        return "NFT not found to purchase";
+                    }
+                }
+                } else if(asset_type == "Text") {
+                    
+                    let found = Array.find<Principal>(ownedAssets.textAssets, func(x:Principal) {x == nftID});
+                switch(found) {
+                    case(?found) {
+                        let newTextList = Array.filter<Principal>(ownedAssets.textAssets, func(x:Principal) {x != nftID}); // Removing that NFT from Owned Account
+                        let modifiedAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets = ownedAssets.audioAssets;
+                            videoAssets = ownedAssets.videoAssets;
+                            textAssets = newTextList;
+                        };
+                        
+                        ownerIDAndInventoryHashMap.put(from_principal, modifiedAssets); // Modified NFT List by owned account
+
+                        let newOwnerAssets = ownerIDAndInventoryHashMap.get(to_principal);
+                        switch(newOwnerAssets) { // Switch case for Empty NFT Array and non empty NFT Array for To_account
+                            case(?newOwnerAssets) {
+                                let newOwnerTextBuffer = Buffer.fromArray<Principal>(newOwnerAssets.textAssets); // Converting into buffer
+                                newOwnerTextBuffer.add(nftID); // Adding NFT ID
+                                let modifiedNewAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets = ownedAssets.audioAssets;
+                            videoAssets = ownedAssets.videoAssets;
+                            textAssets = Buffer.toArray<Principal>(newOwnerTextBuffer);
+                        };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedNewAssets); // Converting back into array to add it to hashmap
+                                return "Text Document Transferred Successfully";
+                            };
+                            case(null) {
+                                let firstTextForNewOwner = [nftID]; // Creating a new NFT array
+                                let modifiedFirstAsset: OwnerInventory = {
+                                    nftAssets = [];
+                                    audioAssets = [];
+                                    videoAssets = [];
+                                    textAssets = firstTextForNewOwner;
+                                };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedFirstAsset); // Adding it to hashmap
+                                return "First Text asset bought successfully";
+                            };
+                        }
+                    };
+                    case(null) { // When that NFT is not found
+                        return "Text Asset not found to purchase";
+                    }
+                }
+
+
+                } else if(asset_type == "Audio") {
+
+                    let found = Array.find<Principal>(ownedAssets.audioAssets, func(x:Principal) {x == nftID});
+                switch(found) {
+                    case(?found) {
+                        let newAudioList = Array.filter<Principal>(ownedAssets.audioAssets, func(x:Principal) {x != nftID}); // Removing that NFT from Owned Account
+                        let modifiedAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets = newAudioList;
+                            videoAssets = ownedAssets.videoAssets;
+                            textAssets = ownedAssets.textAssets;
+                        };
+                        
+                        ownerIDAndInventoryHashMap.put(from_principal, modifiedAssets); // Modified NFT List by owned account
+
+                        let newOwnerAssets = ownerIDAndInventoryHashMap.get(to_principal);
+                        switch(newOwnerAssets) { // Switch case for Empty NFT Array and non empty NFT Array for To_account
+                            case(?newOwnerAssets) {
+                                let newOwnerAudioBuffer = Buffer.fromArray<Principal>(newOwnerAssets.audioAssets); // Converting into buffer
+                                newOwnerAudioBuffer.add(nftID); // Adding NFT ID
+                                let modifiedNewAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets = Buffer.toArray<Principal>(newOwnerAudioBuffer);
+                            videoAssets = ownedAssets.videoAssets;
+                            textAssets = ownedAssets.textAssets;
+                        };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedNewAssets); // Converting back into array to add it to hashmap
+                                return "Audio asset Transferred Successfully";
+                            };
+                            case(null) {
+                                let firstAudioForNewOwner = [nftID]; // Creating a new NFT array
+                                let modifiedFirstAsset: OwnerInventory = {
+                                    nftAssets =[];
+                                    audioAssets = firstAudioForNewOwner;
+                                    videoAssets = [];
+                                    textAssets =[];
+                                };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedFirstAsset); // Adding it to hashmap
+                                return "First Audio asset bought successfully";
+                            };
+                        }
+                    };
+                    case(null) { // When that NFT is not found
+                        return "Audio not found to purchase";
+                    }
+                }
+
+
+                } else if(asset_type == "Video") {
+                    let found = Array.find<Principal>(ownedAssets.videoAssets, func(x:Principal) {x == nftID});
+                switch(found) {
+                    case(?found) {
+                        let newVideoList = Array.filter<Principal>(ownedAssets.videoAssets, func(x:Principal) {x != nftID}); // Removing that NFT from Owned Account
+                        let modifiedAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets = ownedAssets.audioAssets;
+                            videoAssets = newVideoList;
+                            textAssets = ownedAssets.textAssets;
+                        };
+                        
+                        ownerIDAndInventoryHashMap.put(from_principal, modifiedAssets); // Modified NFT List by owned account
+
+                        let newOwnerAssets = ownerIDAndInventoryHashMap.get(to_principal);
+                        switch(newOwnerAssets) { // Switch case for Empty NFT Array and non empty NFT Array for To_account
+                            case(?newOwnerAssets) {
+                                let newOwnerVideoBuffer = Buffer.fromArray<Principal>(newOwnerAssets.videoAssets); // Converting into buffer
+                                newOwnerVideoBuffer.add(nftID); // Adding NFT ID
+                                let modifiedNewAssets: OwnerInventory = {
+                            nftAssets = ownedAssets.nftAssets;
+                            audioAssets =ownedAssets.audioAssets;
+                            videoAssets = Buffer.toArray<Principal>(newOwnerVideoBuffer);
+                            textAssets = ownedAssets.textAssets;
+                        };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedNewAssets); // Converting back into array to add it to hashmap
+                                return "Video Transferred Successfully";
+                            };
+                            case(null) {
+                                let firstVideoForNewOwner = [nftID]; // Creating a new NFT array
+                                let modifiedFirstAsset: OwnerInventory = {
+                                    nftAssets = [];
+                                    audioAssets = [];
+                                    videoAssets = firstVideoForNewOwner;
+                                    textAssets =[];
+                                };
+                                ownerIDAndInventoryHashMap.put(to_principal, modifiedFirstAsset); // Adding it to hashmap
+                                return "First Video asset bought successfully";
+                            };
+                        }
+                    };
+                    case(null) { // When that NFT is not found
+                        return "Video not found to purchase";
+                    }
+                }
+
+                } else {
+                    return "Invalid asset type";
+                }
+            };
+            case(null) { // When that NFT list itself is not found
+                return "No NFTs to purchase";
+            }
+        };
+    };
+
+
     /*
     public query func fetchAllAuctionDetails(): async [AuctionData] {
         let allAuctionDetails = Iter.toArray(nftWithAuctionDetailsHashMap.vals());

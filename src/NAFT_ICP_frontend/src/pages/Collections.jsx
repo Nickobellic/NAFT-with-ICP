@@ -182,13 +182,13 @@ const Collections = () => {
           let nftPrincipal = Principal.fromText(nftID);
           let fromAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
           let toAccount = Principal.fromText(ownerID);
-          const transferStatus = await naft_icp.transferNFT(nftPrincipal, fromAccount, toAccount);
+          const transferStatus = await naft_icp.transferAsset(nftPrincipal, fromAccount, toAccount);
           console.log(transferStatus);
         } else if(action == "Sell") {
           let nftPrincipal = Principal.fromText(nftID);
           let fromAccount = Principal.fromText(ownerID);
           let toAccount = Principal.fromText(process.env.CANISTER_OWNER_PRINCIPAL);
-          const transferStatus = await naft_icp.transferNFT(nftPrincipal, fromAccount, toAccount);
+          const transferStatus = await naft_icp.transferAsset(nftPrincipal, fromAccount, toAccount);
           console.log(transferStatus);
         }
         console.log("Transaction Ended");

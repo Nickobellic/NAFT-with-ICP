@@ -102,6 +102,7 @@ const AuctionPage = () => {
       let textOwnerList = [];
       let textMetaData = [];
       let texts = await naft_icp.getAllAuctionTexts();
+      console.log(texts);
       //let nftData = nfts.map((nft) => nft[1]);
       //let ownerIDs = nfts.map((nft) => nft[0].toText());
       let textList = [];
@@ -112,7 +113,9 @@ const AuctionPage = () => {
 
       // Getting owners of the NFT LIst
       for(const text of textList) {
-        let owner = await naft_icp.getAllAuctionTexts(Principal.fromText(text));
+        console.log(text);
+        let owner = await naft_icp.getAuctionConductorinText(Principal.fromText(text));
+        console.log(owner);
         let singleTextData = await naft_icp.getAuctionAssetData(Principal.fromText(text));
         textOwnerList.push(owner);
         textMetaData.push(singleTextData);

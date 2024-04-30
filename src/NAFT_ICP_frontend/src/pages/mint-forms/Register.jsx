@@ -2,7 +2,7 @@ import {useContext, useCallback, createContext, useState, useEffect} from "react
 import acceptExtensions from "../../utils/switcher";
 import React from "react";
 import axios from "axios";
-import {Link, useParams} from "react-router-dom";
+import {Link, Navigate, useNavigate, useParams} from "react-router-dom";
 import { locStore } from "../UserReg";
 import { Switch } from "@mui/material";
 import {FormGroup, FormControlLabel} from "@mui/material";
@@ -13,6 +13,7 @@ import { Nat } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 
 const MintAssets = () => {
+    const navigate = useNavigate();
     const {mint_type} = useParams();
     const [walletID, setWalletID] = useState("");
     const [color, setColor] = useState('gold');
@@ -90,6 +91,7 @@ const MintAssets = () => {
         console.log("Ended");
         //await naft_icp.getYourNFTs(Principal.fromText(walletID));
         setClicked(false);
+        navigate("/")
 
     }
 
